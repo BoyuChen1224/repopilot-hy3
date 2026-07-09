@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AlertCircle, Clipboard, FileArchive, FileText, Loader2, Sparkles } from "lucide-react";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import "./styles.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -13,7 +14,7 @@ type ResultState = {
 };
 
 function MarkdownBlock({ content }: { content?: string }) {
-  const html = useMemo(() => marked.parse(content || "No output yet."), [content]);
+  const html = useMemo(() => DOMPurify.sanitize(marked.parse(content || "No output yet.") as string), [content]);
   return <div className="markdown" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
@@ -167,4 +168,3 @@ function App() {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
-

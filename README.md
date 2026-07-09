@@ -29,6 +29,14 @@ The app does not fine-tune or locally run a model. All intelligent analysis is p
 - Generate a Markdown reproduction report.
 - Interactive web UI with copy-friendly results.
 
+## Submission Highlights
+
+- Concrete Hy3 scenario: open-source repository reproduction, not a generic chat UI.
+- Evidence-grounded workflow: zip extraction preserves file paths and asks Hy3 to cite repository evidence.
+- Full loop: analyze repository, diagnose terminal error, and generate a report for issues or PRs.
+- Practical developer UX: upload, paste, copy, and demo inputs are included.
+- Safer implementation details: zip paths are validated before extraction, and model-rendered Markdown is sanitized in the browser.
+
 ## Project Structure
 
 ```text
@@ -83,6 +91,10 @@ Open the Vite URL shown in the terminal.
 
 See [docs/demo-1-react.md](docs/demo-1-react.md) and [docs/demo-2-python-error.md](docs/demo-2-python-error.md).
 
+## Submission Notes
+
+See [SUBMISSION.md](SUBMISSION.md) for the issue response draft, demo checklist, and reviewer-facing project summary.
+
 ## GitHub Project Management
 
 Use GitHub Issues and Projects with the workflow in [.github/PROJECT_MANAGEMENT.md](.github/PROJECT_MANAGEMENT.md). Suggested labels:
@@ -94,4 +106,3 @@ Use GitHub Issues and Projects with the workflow in [.github/PROJECT_MANAGEMENT.
 - `hy3-prompt`
 - `frontend`
 - `backend`
-

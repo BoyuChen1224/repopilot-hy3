@@ -96,6 +96,20 @@ def read_text(path: Path) -> str:
     return content[:MAX_FILE_CHARS]
 
 
+def safe_extract_zip(archive: zipfile.ZipFile, target: Path) -> None:
+    target_root = target.resolve()
+    for member in archive.infolist():
+        destination = (target / member.filename).resolve()
+        if target_root != destination and target_root not in destination.parents:
+            raise HTTPException(status_code=400, detail=f"Unsafe zip path: {member.filename}")
+        if member.is_dir():
+            destination.mkdir(parents=True, exist_ok=True)
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with archive.open(member) as source, destination.open("wb") as output:
+            output.write(source.read())
+
+
 def summarize_directory(root: Path) -> str:
     parts: list[str] = []
     total = 0
@@ -124,7 +138,7 @@ def extract_zip(upload: UploadFile) -> str:
         archive_path.write_bytes(upload.file.read())
         try:
             with zipfile.ZipFile(archive_path) as archive:
-                archive.extractall(Path(tmp) / "src")
+                safe_extract_zip(archive, Path(tmp) / "src")
         except zipfile.BadZipFile as exc:
             raise HTTPException(status_code=400, detail="Uploaded file is not a valid zip") from exc
         return summarize_directory(Path(tmp) / "src")
@@ -235,4 +249,3 @@ Diagnosis:
         temperature=0.2,
     )
     return {"report": content}
-
