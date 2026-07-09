@@ -94,3 +94,13 @@ npm approve-scripts --allow-scripts-pending
 ```
 
 Select and approve `esbuild`, then run the startup script again.
+
+## Windows batch stops after npm install
+
+If `start.bat` stops immediately after this line:
+
+```text
+found 0 vulnerabilities
+```
+
+Update to the latest repository version. The fixed `start.bat` uses `call npm ...` so control returns to the startup script after `npm install`.

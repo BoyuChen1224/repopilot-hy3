@@ -142,6 +142,7 @@ Open `http://127.0.0.1:5173`.
 - `Python was not found`: install Python 3.10+ and make sure `python`, `python3`, or `py` is available in your terminal.
 - `Node.js package manager was not found`: install Node.js 18+ with npm, or install pnpm.
 - `npm warn allow-scripts ... esbuild`: this is an npm security warning, not an install failure. If the web app starts normally, you can ignore it. If Vite later fails with an `esbuild` error, run `cd apps/web`, then `npm approve-scripts --allow-scripts-pending`, approve `esbuild`, and run the startup script again.
+- `start.bat` stops right after `found 0 vulnerabilities`: pull the latest version of this repository. Older `start.bat` files called `npm` without `call`, which makes Windows batch scripts stop after `npm install`.
 - Port already in use: stop the existing process on `8000` or `5173`, or edit the startup script port arguments.
 - Model calls fail but `/health` works: check `HY3_API_KEY`, `HY3_BASE_URL`, and `HY3_MODEL`.
 

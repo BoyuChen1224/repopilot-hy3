@@ -71,7 +71,7 @@ if "%PM_CMD%"=="" (
 echo.
 echo ==^> Installing frontend dependencies
 pushd "%WEB_DIR%"
-%PM_CMD% install
+call %PM_CMD% install
 if errorlevel 1 exit /b 1
 popd
 
@@ -85,7 +85,7 @@ echo Close both opened windows to stop the project.
 echo.
 
 start "RepoPilot Hy3 API" /D "%API_DIR%" cmd /k ""%VENV_PYTHON%" -m uvicorn app.main:app --host %HOST% --port %API_PORT%"
-start "RepoPilot Hy3 Web" /D "%WEB_DIR%" cmd /k "set "VITE_API_BASE_URL=%VITE_API_BASE_URL%" && %PM_CMD% run dev -- --host %HOST% --port %WEB_PORT%"
+start "RepoPilot Hy3 Web" /D "%WEB_DIR%" cmd /k "call %PM_CMD% run dev -- --host %HOST% --port %WEB_PORT%"
 
 exit /b 0
 

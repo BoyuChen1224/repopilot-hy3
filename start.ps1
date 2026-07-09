@@ -36,6 +36,10 @@ function Import-DotEnv {
 function Get-CommandName {
   param([string[]]$Names)
   foreach ($name in $Names) {
+    $cmd = Get-Command "$name.cmd" -ErrorAction SilentlyContinue
+    if ($cmd) {
+      return $cmd.Source
+    }
     $cmd = Get-Command $name -ErrorAction SilentlyContinue
     if ($cmd) {
       return $cmd.Source
@@ -52,6 +56,9 @@ function Invoke-Step {
   Write-Host ""
   Write-Host "==> $Label" -ForegroundColor Cyan
   & $Command
+  if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "$Label failed with exit code $LASTEXITCODE"
+  }
 }
 
 Import-DotEnv (Join-Path $ApiDir ".env")
