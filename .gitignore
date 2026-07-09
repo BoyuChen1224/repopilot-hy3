@@ -10,7 +10,7 @@ dist/
 build/
 .DS_Store
 *.log
+*.tsbuildinfo
 .pytest_cache/
 .ruff_cache/
 uploads/
-

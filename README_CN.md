@@ -1,71 +1,127 @@
 # RepoPilot Hy3
 
-RepoPilot Hy3 是一个由 Hy3 驱动的开源项目复现与报错诊断助手。它面向开发者在运行陌生仓库时遇到的真实问题：文档不完整、依赖版本漂移、启动命令不明确、终端报错难以定位。
+RepoPilot Hy3 是一个由 Hy3 驱动的开源项目复现与报错诊断助手。它帮助开发者理解陌生仓库、生成可运行的启动方案、诊断终端错误，并输出可复制到 README、Issue 或 PR 的复现报告。
 
-本项目用于 [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)，展示 Hy3 在“开源仓库复现”这一具体开发场景下的能力。
+本项目面向 [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)，展示 Hy3 在“开源项目复现”这一具体开发场景中的能力。
 
 ## 场景价值
 
-开发者接手一个新仓库时，通常要先读 README、判断技术栈、安装依赖、试运行命令，并在报错后反复排查。RepoPilot Hy3 把这些步骤组织成一个可交互流程：
+开发者接手新仓库时，常见问题包括文档不完整、依赖版本漂移、启动命令不明确、终端报错难定位。RepoPilot Hy3 将这些步骤组织成一个交互式流程：
 
 - 上传项目 zip 或粘贴 README、文件树、配置文件。
 - 让 Hy3 识别技术栈、入口文件、依赖管理方式和运行命令。
 - 粘贴终端错误后，由 Hy3 给出可能原因、修复命令和验证步骤。
 - 生成可复制到 README、Issue 或 PR 的复现报告。
 
-## Hy3 的角色
+## 功能
 
-Hy3 是本项目的核心推理引擎，负责：
+- 上传项目 zip 或粘贴项目上下文。
+- 提取 `README.md`、`package.json`、`requirements.txt`、`pyproject.toml`、`Dockerfile` 等关键文件。
+- 生成项目画像、运行命令、风险点和验证步骤。
+- 诊断终端错误日志。
+- 生成 Markdown 复现报告。
+- 提供可复制结果的 Web 界面。
 
-- 从仓库文件和日志中提取证据。
-- 区分确定事实、合理推断和缺失信息。
-- 生成可执行的复现清单。
-- 诊断安装、启动和运行时错误。
-- 输出结构化 Markdown 报告。
+## 项目结构
 
-项目不做模型微调，也不在本地运行模型；智能分析均通过 Hy3 API 完成。
-
-## 亮点
-
-- 具体场景明确：聚焦开源项目复现，不是通用聊天壳。
-- 端到端闭环：仓库分析、错误诊断、报告生成三个步骤串联。
-- 证据驱动：后端提取重要文件，Prompt 要求 Hy3 基于文件和日志说明原因。
-- 可演示性强：包含 React/Vite 与 Python 报错两个 demo。
-- 工程细节完整：后端校验 zip 路径，前端清洗模型返回的 Markdown。
+```text
+RepoPilot Hy3/
+  apps/
+    api/                 # FastAPI 后端
+    web/                 # Vite React 前端
+  docs/                  # 演示脚本和 Hy3 角色说明
+  examples/              # 示例输入
+  README.md
+  README_CN.md
+```
 
 ## 快速开始
 
+### 环境要求
+
+- Python 3.10+
+- Node.js 18+，包含 npm
+- Hy3 兼容 API Key
+
 ### 1. 配置 Hy3
 
-创建根目录 `.env` 或 `apps/api/.env`：
+复制 `.env.example` 到仓库根目录 `.env`，或复制到 `apps/api/.env`，然后填入你的 key：
 
 ```bash
 HY3_API_KEY=your_key_here
 HY3_BASE_URL=https://tokenhub.tencentmaas.com/v1
 HY3_MODEL=hy3
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-请不要提交真实 API Key。
+不要提交真实 API Key。
 
-### 2. 启动后端
+### 2. 一键启动
+
+在仓库根目录执行对应平台的脚本。
+
+Windows PowerShell：
+
+```powershell
+.\start.ps1
+```
+
+Windows 命令提示符：
+
+```bat
+start.bat
+```
+
+macOS / Linux：
+
+```bash
+chmod +x ./start.sh
+./start.sh
+```
+
+脚本会自动安装缺失的后端和前端依赖，然后启动：
+
+- 后端 API：`http://127.0.0.1:8000`
+- 前端页面：`http://127.0.0.1:5173`
+
+PowerShell、macOS、Linux 中按 `Ctrl+C` 停止；`start.bat` 会打开两个窗口，关闭窗口即可停止。
+
+### 手动启动
+
+如果需要分别排查前后端，可以使用手动命令。
+
+后端：
 
 ```bash
 cd "apps/api"
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+# Windows
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# macOS / Linux
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 3. 启动前端
+前端：
 
 ```bash
 cd "apps/web"
 npm install
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-打开终端中显示的 Vite 地址即可使用。
+打开 `http://127.0.0.1:5173` 即可使用。
+
+## 常见问题
+
+- 提示 `HY3_API_KEY is not configured`：从 `.env.example` 创建 `.env`，并替换占位 key。
+- 提示找不到 Python：安装 Python 3.10+，并确认终端可以使用 `python`、`python3` 或 `py`。
+- 提示找不到 Node.js 包管理器：安装 Node.js 18+，或安装 pnpm。
+- 端口被占用：停止占用 `8000` 或 `5173` 的进程，或修改启动脚本的端口参数。
+- `/health` 正常但模型调用失败：检查 `HY3_API_KEY`、`HY3_BASE_URL` 和 `HY3_MODEL`。
 
 ## Demo
 

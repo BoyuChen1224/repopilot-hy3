@@ -52,37 +52,91 @@ RepoPilot Hy3/
 
 ## Quick Start
 
+### Requirements
+
+- Python 3.10+
+- Node.js 18+ with npm
+- A Hy3-compatible API key
+
 ### 1. Configure Hy3
 
-Create `apps/api/.env` or a root `.env` file:
+Copy `.env.example` to either the repository root or `apps/api/.env`, then set your key:
 
 ```bash
 HY3_API_KEY=your_key_here
 HY3_BASE_URL=https://tokenhub.tencentmaas.com/v1
 HY3_MODEL=hy3
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
 Never commit real API keys.
 
-### 2. Start Backend
+### 2. One-Click Startup
+
+Run the startup script for your platform from the repository root.
+
+Windows PowerShell:
+
+```powershell
+.\start.ps1
+```
+
+Windows Command Prompt:
+
+```bat
+start.bat
+```
+
+macOS / Linux:
+
+```bash
+chmod +x ./start.sh
+./start.sh
+```
+
+The scripts install missing backend and frontend dependencies, then start:
+
+- API: `http://127.0.0.1:8000`
+- Web: `http://127.0.0.1:5173`
+
+Press `Ctrl+C` in PowerShell/macOS/Linux, or close the two windows opened by `start.bat`, to stop the project.
+
+### Manual Startup
+
+Use these commands if you want to run the two services separately.
+
+Backend:
 
 ```bash
 cd "apps/api"
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+# Windows
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# macOS / Linux
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 3. Start Frontend
+Frontend:
 
 ```bash
 cd "apps/web"
 npm install
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Open the Vite URL shown in the terminal.
+Open `http://127.0.0.1:5173`.
+
+## Troubleshooting
+
+- `HY3_API_KEY is not configured`: create `.env` from `.env.example` and replace the placeholder key.
+- `Python was not found`: install Python 3.10+ and make sure `python`, `python3`, or `py` is available in your terminal.
+- `Node.js package manager was not found`: install Node.js 18+ with npm, or install pnpm.
+- Port already in use: stop the existing process on `8000` or `5173`, or edit the startup script port arguments.
+- Model calls fail but `/health` works: check `HY3_API_KEY`, `HY3_BASE_URL`, and `HY3_MODEL`.
 
 ## End-to-End Demos
 
