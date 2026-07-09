@@ -40,11 +40,30 @@ input {
 
 .leftPane {
   padding: 18px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
 }
 
 .rightPane {
   min-height: calc(100vh - 48px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.leftPaneScroll {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.leftPaneFooter {
+  flex-shrink: 0;
+  padding-top: 14px;
+  border-top: 1px solid #dce3ef;
+  background: #ffffff;
 }
 
 .brand {
@@ -132,7 +151,8 @@ button:focus {
 }
 
 .actions button,
-.tabs button {
+.tabs button,
+.copyButton {
   border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #172033;
@@ -194,6 +214,14 @@ button:disabled {
 .tabs {
   display: flex;
   gap: 8px;
+  min-width: 0;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 14px;
   border-bottom: 1px solid #dce3ef;
   background: #f8fafc;
@@ -210,10 +238,22 @@ button:disabled {
   color: #ffffff;
 }
 
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .markdown {
   max-width: 940px;
   padding: 24px 28px 48px;
   line-height: 1.65;
+  overflow-y: auto;
 }
 
 .markdown h1,
@@ -253,5 +293,17 @@ button:disabled {
   .rightPane {
     min-height: 520px;
   }
-}
 
+  .leftPane {
+    max-height: min(760px, calc(100vh - 24px));
+  }
+
+  .resultHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .copyButton {
+    align-self: flex-start;
+  }
+}
