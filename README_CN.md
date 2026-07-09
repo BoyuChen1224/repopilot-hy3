@@ -126,6 +126,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 - 提示 `HY3_API_KEY is not configured`：从 `.env.example` 创建 `.env`，并替换占位 key。
 - 提示找不到 Python：安装 Python 3.10+，并确认终端可以使用 `python`、`python3` 或 `py`。
 - 提示找不到 Node.js 包管理器：安装 Node.js 18+，或安装 pnpm。
+- 出现 `npm warn allow-scripts ... esbuild`：这是 npm 的安全提示，不代表安装失败。如果前端正常启动，可以忽略；如果后续 Vite 报 `esbuild` 相关错误，进入 `apps/web` 后执行 `npm approve-scripts --allow-scripts-pending`，批准 `esbuild`，再重新运行启动脚本。
 - 端口被占用：停止占用 `8000` 或 `5173` 的进程，或修改启动脚本的端口参数。
 - `/health` 正常但模型调用失败：检查 `HY3_API_KEY`、`HY3_BASE_URL` 和 `HY3_MODEL`。
 

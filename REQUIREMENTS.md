@@ -74,3 +74,23 @@ npm --version
 On macOS or Linux, `python3 --version` is also acceptable because `start.sh` checks `python3` first.
 
 If any command is missing, install the corresponding system dependency before running the startup script.
+
+## npm Script Approval Warning
+
+Some npm versions may print this warning while installing frontend dependencies:
+
+```text
+npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn allow-scripts   esbuild@... (install: (install scripts present))
+```
+
+This is a security warning, not an install failure. If the Vite frontend starts normally, no action is needed.
+
+If Vite later fails with an `esbuild` error, approve the script once:
+
+```bash
+cd apps/web
+npm approve-scripts --allow-scripts-pending
+```
+
+Select and approve `esbuild`, then run the startup script again.
