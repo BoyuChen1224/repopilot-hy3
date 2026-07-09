@@ -39,9 +39,13 @@ RepoPilot Hy3/
 
 ### 环境要求
 
-- Python 3.10+
-- Node.js 18+，包含 npm
+- Python 3.10+，包含 `venv` 和 `pip`
+- Node.js 18+，包含 `npm`
+- 可以访问 PyPI、npm registry 和 Hy3 API 网关的网络环境
 - Hy3 兼容 API Key
+- 本地 `8000` 和 `5173` 端口未被占用
+
+完整依赖清单见 [REQUIREMENTS.md](REQUIREMENTS.md)。
 
 ### 1. 配置 Hy3
 
@@ -83,6 +87,8 @@ chmod +x ./start.sh
 
 - 后端 API：`http://127.0.0.1:8000`
 - 前端页面：`http://127.0.0.1:5173`
+
+脚本不会安装 Python、Node.js 这类系统级依赖。全新电脑需要先安装这些基础环境。
 
 PowerShell、macOS、Linux 中按 `Ctrl+C` 停止；`start.bat` 会打开两个窗口，关闭窗口即可停止。
 

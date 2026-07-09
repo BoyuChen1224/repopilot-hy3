@@ -54,9 +54,13 @@ RepoPilot Hy3/
 
 ### Requirements
 
-- Python 3.10+
-- Node.js 18+ with npm
+- Python 3.10+ with `venv` and `pip`
+- Node.js 18+ with `npm`
+- Network access to PyPI, npm registry, and the Hy3 API endpoint
 - A Hy3-compatible API key
+- Free local ports `8000` and `5173`
+
+See [REQUIREMENTS.md](REQUIREMENTS.md) for the full dependency checklist.
 
 ### 1. Configure Hy3
 
@@ -98,6 +102,8 @@ The scripts install missing backend and frontend dependencies, then start:
 
 - API: `http://127.0.0.1:8000`
 - Web: `http://127.0.0.1:5173`
+
+They do not install system dependencies such as Python or Node.js. Install those first on a new computer.
 
 Press `Ctrl+C` in PowerShell/macOS/Linux, or close the two windows opened by `start.bat`, to stop the project.
 
