@@ -14,6 +14,13 @@ assert.match(main, /className="resultHeader"/, "generated text area should inclu
 assert.match(main, /content=\{activeContent\}/, "copy button should copy the active generated text");
 
 assert.match(styles, /\.leftPane\s*\{[\s\S]*display:\s*flex/, "left pane should use flex layout");
-assert.match(styles, /\.leftPane\s*\{[\s\S]*max-height:\s*calc\(100vh - 48px\)/, "left pane should be viewport bounded");
+assert.match(styles, /\.app\s*\{[\s\S]*height:\s*100vh/, "app shell should be fixed to the viewport height");
+assert.match(styles, /\.app\s*\{[\s\S]*overflow:\s*hidden/, "app shell should prevent document-level scrolling");
+assert.match(styles, /\.workspace\s*\{[\s\S]*height:\s*100%/, "workspace should fill the fixed app shell");
+assert.match(styles, /\.leftPane\s*\{[\s\S]*height:\s*100%/, "left pane should stay fixed while right output scrolls");
 assert.match(styles, /\.leftPaneScroll\s*\{[\s\S]*overflow-y:\s*auto/, "left pane content should scroll vertically");
 assert.match(styles, /\.leftPaneFooter\s*\{[\s\S]*flex-shrink:\s*0/, "left pane footer should not scroll away");
+assert.match(styles, /\.rightPane\s*\{[\s\S]*height:\s*100%/, "right pane should be viewport bounded");
+assert.match(styles, /\.markdown\s*\{[\s\S]*flex:\s*1/, "generated text area should take remaining right pane height");
+assert.match(styles, /\.markdown\s*\{[\s\S]*min-height:\s*0/, "generated text area should be allowed to shrink before scrolling");
+assert.match(styles, /\.markdown\s*\{[\s\S]*overflow-y:\s*auto/, "generated text area should scroll internally");
