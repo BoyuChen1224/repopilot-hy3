@@ -136,6 +136,71 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 Open `http://127.0.0.1:5173`.
 
+## Backend API Usage
+
+The backend API runs at `http://127.0.0.1:8000`. The root path `/` is not a web page, so a browser request to `http://127.0.0.1:8000` may return `404`. Use the API docs or one of the endpoints below:
+
+- API docs: `http://127.0.0.1:8000/docs`
+- Health check: `GET /health`
+- Analyze pasted project context: `POST /analyze-text`
+- Analyze uploaded project zip: `POST /analyze-zip`
+- Diagnose an error log: `POST /diagnose-error`
+- Generate a reproduction report: `POST /generate-report`
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+Analyze pasted text:
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze-text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_notes": "Paste README, file tree, package.json, or setup notes here.",
+    "error_log": "Optional terminal error log."
+  }'
+```
+
+Upload and analyze a project zip:
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze-zip \
+  -F "file=@/path/to/project.zip" \
+  -F "error_log=Optional terminal error log."
+```
+
+Diagnose an error log:
+
+```bash
+curl -X POST http://127.0.0.1:8000/diagnose-error \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_context": "Paste project context here.",
+    "error_log": "Paste the terminal error log here."
+  }'
+```
+
+Generate a report from previous outputs:
+
+```bash
+curl -X POST http://127.0.0.1:8000/generate-report \
+  -H "Content-Type: application/json" \
+  -d '{
+    "analysis": "Paste the analysis response here.",
+    "diagnosis": "Paste the diagnosis response here, or leave empty."
+  }'
+```
+
+From WSL, `127.0.0.1` usually works when the backend is running on Windows. If it does not, use the Windows host address:
+
+```bash
+WINDOWS_HOST=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+curl "http://$WINDOWS_HOST:8000/health"
+```
+
 ## Troubleshooting
 
 - `HY3_API_KEY is not configured`: create `.env` from `.env.example` and replace the placeholder key.

@@ -121,6 +121,71 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 打开 `http://127.0.0.1:5173` 即可使用。
 
+## 后端 API 调用
+
+后端 API 运行在 `http://127.0.0.1:8000`。根路径 `/` 不是前端页面，所以直接打开 `http://127.0.0.1:8000` 可能会看到 `404`。请使用接口文档或下面的具体接口：
+
+- API 文档：`http://127.0.0.1:8000/docs`
+- 健康检查：`GET /health`
+- 分析粘贴的项目上下文：`POST /analyze-text`
+- 分析上传的项目 zip：`POST /analyze-zip`
+- 诊断错误日志：`POST /diagnose-error`
+- 生成复现报告：`POST /generate-report`
+
+健康检查：
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+分析粘贴文本：
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze-text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_notes": "这里粘贴 README、文件树、package.json 或启动说明。",
+    "error_log": "这里粘贴可选的终端错误日志。"
+  }'
+```
+
+上传并分析项目 zip：
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze-zip \
+  -F "file=@/path/to/project.zip" \
+  -F "error_log=可选的终端错误日志"
+```
+
+诊断错误日志：
+
+```bash
+curl -X POST http://127.0.0.1:8000/diagnose-error \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_context": "这里粘贴项目上下文。",
+    "error_log": "这里粘贴终端错误日志。"
+  }'
+```
+
+根据前面结果生成报告：
+
+```bash
+curl -X POST http://127.0.0.1:8000/generate-report \
+  -H "Content-Type: application/json" \
+  -d '{
+    "analysis": "这里粘贴分析结果。",
+    "diagnosis": "这里粘贴诊断结果，也可以留空。"
+  }'
+```
+
+如果在 WSL 中调用 Windows 上运行的后端，通常可以直接使用 `127.0.0.1`。如果不通，可以改用 Windows 主机地址：
+
+```bash
+WINDOWS_HOST=$(grep nameserver /etc/resolv.conf | awk '{print $2}')
+curl "http://$WINDOWS_HOST:8000/health"
+```
+
 ## 常见问题
 
 - 提示 `HY3_API_KEY is not configured`：从 `.env.example` 创建 `.env`，并替换占位 key。
