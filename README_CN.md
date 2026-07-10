@@ -26,7 +26,6 @@
 - [CodeBuddy 协作说明](#codebuddy-协作说明)
 - [安全说明](#安全说明)
 - [相关文档](#相关文档)
-- [活动提交说明](#活动提交说明)
 
 ---
 
@@ -319,7 +318,3 @@ CodeBuddy 协作完成的项目内容包括：
 - [Demo 2 指南](docs/demo-2-python-error.md)
 - [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
 - [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
-
-## 活动提交说明
-
-Issue #4 要求通过 Pull Request 将活动成果提交到 [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026)。RepoPilot Hy3 是独立应用仓库，因此该 PR 应补充本仓库链接、简要项目说明、两条 Demo 流程，以及 [Demo 1](video/Demo_1.mp4) 和 [Demo 2](video/Demo_2.mp4) 视频链接。

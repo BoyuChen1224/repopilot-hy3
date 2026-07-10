@@ -26,7 +26,6 @@ Turn repository evidence and terminal logs into runnable setup plans, actionable
 - [CodeBuddy Collaboration](#codebuddy-collaboration)
 - [Security Notes](#security-notes)
 - [Related Documentation](#related-documentation)
-- [Activity Submission](#activity-submission)
 
 ---
 
@@ -319,7 +318,3 @@ The final project behavior and documentation were reviewed against the checked-i
 - [Demo 2 guide](docs/demo-2-python-error.md)
 - [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
 - [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
-
-## Activity Submission
-
-Issue #4 requires activity work to be submitted through a pull request targeting [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026). Because RepoPilot Hy3 is an independent application repository, that pull request should include this repository's URL, a concise project description, the two demo flows, and the [Demo 1](video/Demo_1.mp4) and [Demo 2](video/Demo_2.mp4) video links.
