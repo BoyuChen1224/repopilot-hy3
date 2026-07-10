@@ -37,7 +37,7 @@ The README files will reuse the upstream Hy3 repository's documentation conventi
 - Direct, task-oriented section names such as Quickstart, Deployment, and Demo.
 - Short paragraphs, concise tables, fenced commands, and links to deeper documentation.
 
-No badge will claim a license, release, test result, or compatibility status that is not evidenced by the repository.
+No badge or section will claim a license, release, test result, or compatibility status that is not evidenced by the repository.
 
 ## Issue #4 Coverage
 
@@ -49,7 +49,7 @@ The README requirement table will state the following accurately:
 | Interactive frontend | React/Vite web application | Link the local web URL and describe the main interactions |
 | Two end-to-end demos | React repository analysis and Python error diagnosis examples | Provide exact inputs, actions, expected outputs, and supporting document links |
 | Video or GIF no longer than two minutes | Not yet available | Show an explicit “coming soon” notice without a dead link |
-| Open-source project and stated Hy3 role | Public repository and backend integration | Add dedicated Hy3 role and architecture sections |
+| Public project source and stated Hy3 role | Public repository and backend integration | Describe source availability and add dedicated Hy3 role and architecture sections; do not add a license section or imply that public access grants a license |
 | CodeBuddy collaboration disclosure is encouraged | Repository implementation and documentation were produced collaboratively | Add a factual list of collaboratively completed areas without inventing line-level attribution |
 
 The documentation will distinguish between implemented requirements and the pending media deliverable.

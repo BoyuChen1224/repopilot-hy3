@@ -1,70 +1,158 @@
+<div align="center">
+
+中文 | [English](README.md)
+
 # RepoPilot Hy3
 
-[English README](README.md)
+**由 Hy3 驱动的项目复现与错误诊断助手。**
 
-RepoPilot Hy3 是一个由 Hy3 驱动的开源项目复现与报错诊断助手。它帮助开发者理解陌生仓库、生成可运行的启动方案、诊断终端错误，并输出可复制到 README、Issue 或 PR 的复现报告。
+将仓库证据和终端日志转化为可执行的部署方案、可操作的诊断建议与可复用的 Markdown 报告。
 
-本项目面向 [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)，展示 Hy3 在“开源项目复现”这一具体开发场景中的能力。
+</div>
 
-## 场景价值
+---
 
-开发者接手新仓库时，常见问题包括文档不完整、依赖版本漂移、启动命令不明确、终端报错难定位。RepoPilot Hy3 将这些步骤组织成一个交互式流程：
+## 目录
 
-- 上传项目 zip 或粘贴 README、文件树、配置文件。
-- 让 Hy3 识别技术栈、入口文件、依赖管理方式和运行命令。
-- 粘贴终端错误后，由 Hy3 给出可能原因、修复命令和验证步骤。
-- 生成可复制到 README、Issue 或 PR 的复现报告。
+- [项目概览](#项目概览)
+- [Issue #4 要求对照](#issue-4-要求对照)
+- [Hy3 在系统中的角色](#hy3-在系统中的角色)
+- [主要功能](#主要功能)
+- [项目结构](#项目结构)
+- [快速开始](#快速开始)
+- [端到端 Demo](#端到端-demo)
+- [后端 API](#后端-api)
+- [常见问题](#常见问题)
+- [CodeBuddy 协作说明](#codebuddy-协作说明)
+- [安全说明](#安全说明)
+- [相关文档](#相关文档)
+- [活动提交说明](#活动提交说明)
 
-## 功能
+---
 
-- 上传项目 zip 或粘贴项目上下文。
-- 提取 `README.md`、`package.json`、`requirements.txt`、`pyproject.toml`、`Dockerfile` 等关键文件。
-- 生成项目画像、运行命令、风险点和验证步骤。
-- 诊断终端错误日志。
-- 生成 Markdown 复现报告。
-- 提供可复制结果的 Web 界面。
+## 项目概览
+
+复现一个陌生仓库通常不只是执行一条命令：文档可能不完整，依赖版本可能发生漂移，入口文件可能不明确，终端输出也经常难以快速定位。
+
+RepoPilot Hy3 将这套流程组织成一个交互式开发者工具。上传项目 zip 或粘贴仓库说明，再按需添加错误日志，即可让 Hy3 生成：
+
+- 基于仓库文件证据的项目画像。
+- 检测到的框架、运行时、包管理器与入口文件。
+- 包含运行命令的分步复现清单。
+- 针对终端报错的可能根因与修复步骤。
+- 可复制到 README、Issue 或 PR 的 Markdown 复现报告。
+
+本项目面向 [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4) 构建。该 Issue 要求参与者在具体真实场景中，通过 Hy3 API 完成一个可端到端运行的应用。
+
+## Issue #4 要求对照
+
+| Issue 要求 | 本仓库状态 | 对应实现 |
+| --- | --- | --- |
+| 通过 Hy3 API 调用模型，不训练、不微调、不做本地推理 | 已完成 | FastAPI 后端调用可配置的 Hy3 兼容 OpenAI API |
+| 至少提供一个可交互前端 | 已完成 | 双语 React/Vite Web 界面，支持上传、文本输入、操作按钮、结果标签页与复制 |
+| 至少跑通两个端到端 Demo | 已完成 | 下文提供 React/Vite 项目复现与 Python 错误诊断流程 |
+| 提供不超过两分钟的视频或 GIF | **即将补充** | 下文已保留演示媒体位置，不发布无效占位链接 |
+| 公开项目源码并说明 Hy3 的角色 | 已记录 | 仓库源码公开，Hy3 职责在下文完整说明；本 README 不作许可证声明 |
+| 记录 CodeBuddy 协作完成的内容 | 已记录 | 详见 [CodeBuddy 协作说明](#codebuddy-协作说明) |
+
+## Hy3 在系统中的角色
+
+Hy3 是 RepoPilot 的核心推理引擎，不是本地依赖，也不是简单的通用聊天组件。应用使用 Hy3 完成：
+
+- 理解 README、依赖清单、配置文件、文件树和终端日志。
+- 推断项目技术栈，并生成基于证据的部署说明。
+- 诊断安装与运行错误，给出可能原因、修复命令和验证步骤。
+- 将分析与诊断结果整理为结构化 Markdown 复现报告。
+
+```text
+开发者输入
+    -> React Web 界面
+    -> FastAPI 提取证据并构造提示词
+    -> Hy3 API
+    -> 经过净化、可直接复制的 Markdown
+```
+
+所有模型能力均通过配置的 API 端点访问。RepoPilot Hy3 **不进行模型训练、微调、本地推理或本地模型部署**。
+
+处理上传压缩包时，后端会先验证 zip 路径，再筛选相关文本文件并限制提交上下文的长度。前端在渲染模型生成的 Markdown 前会进行安全净化。
+
+## 主要功能
+
+- 上传项目 `.zip`，或粘贴 README、文件树、配置与部署说明。
+- 从 `README.md`、`package.json`、`requirements.txt`、`pyproject.toml`、`Dockerfile` 和框架配置中提取关键证据。
+- 生成项目画像、可能的运行命令、风险点和验证方案。
+- 诊断粘贴的终端错误和堆栈信息。
+- 生成可复用的 Markdown 项目复现报告。
+- 在 Web 界面中切换中文和英文。
+- 直接复制分析、诊断与报告结果。
 
 ## 项目结构
 
 ```text
 RepoPilot Hy3/
-  apps/
-    api/                 # FastAPI 后端
-    web/                 # Vite React 前端
-  docs/                  # 演示脚本和 Hy3 角色说明
-  examples/              # 示例输入
-  README.md
-  README_CN.md
+├── apps/
+│   ├── api/                  # FastAPI 后端与 Hy3 API 集成
+│   └── web/                  # React/Vite 交互式前端
+├── docs/                     # Demo 指南与 Hy3 角色说明
+├── examples/                 # 内置 Demo 输入
+├── .env.example              # Hy3 API 配置模板
+├── start.ps1                 # PowerShell 一键启动脚本
+├── start.bat                 # 命令提示符一键启动脚本
+├── start.sh                  # macOS/Linux 一键启动脚本
+├── README.md                 # 英文文档
+└── README_CN.md              # 中文文档
 ```
 
 ## 快速开始
 
 ### 环境要求
 
-- Python 3.10+，包含 `venv` 和 `pip`
-- Node.js 18+，包含 `npm`
-- 可以访问 PyPI、npm registry 和 Hy3 API 网关的网络环境
-- Hy3 兼容 API Key
-- 本地 `8000` 和 `5173` 端口未被占用
+- Python 3.10+，包含 `venv` 和 `pip`。
+- Node.js 18+，包含 `npm`（也可使用 `pnpm`）。
+- 能够访问 Python、JavaScript 包仓库和已配置 Hy3 API 端点的网络环境。
+- Hy3 兼容 API Key。
+- 本地 `8000` 和 `5173` 端口未被占用。
 
-完整依赖清单见 [REQUIREMENTS.md](REQUIREMENTS.md)。
+完整环境检查和平台说明见 [REQUIREMENTS.md](REQUIREMENTS.md)。
 
-### 1. 配置 Hy3
-
-复制 `.env.example` 到仓库根目录 `.env`，或复制到 `apps/api/.env`，然后填入你的 key：
+### 1. 克隆并配置
 
 ```bash
-HY3_API_KEY=your_key_here
+git clone https://github.com/BoyuChen1224/repopilot-hy3.git
+cd repopilot-hy3
+```
+
+复制环境变量模板：
+
+```powershell
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+```bat
+:: Windows 命令提示符
+copy .env.example .env
+```
+
+```bash
+# macOS / Linux
+cp .env.example .env
+```
+
+编辑 `.env`，替换 API Key 占位值：
+
+```dotenv
+HY3_API_KEY=your_hy3_api_key
 HY3_BASE_URL=https://tokenhub.tencentmaas.com/v1
 HY3_MODEL=hy3
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-不要提交真实 API Key。
+不要提交真实 API Key。如果希望使用后端服务目录中的配置，也可以将文件保存为 `apps/api/.env`。
 
-### 2. 一键启动
+### 2. 启动前后端服务
 
-在仓库根目录执行对应平台的脚本。
+在仓库根目录执行对应平台的一条命令。
 
 Windows PowerShell：
 
@@ -85,23 +173,39 @@ chmod +x ./start.sh
 ./start.sh
 ```
 
-脚本会自动安装缺失的后端和前端依赖，然后启动：
+启动脚本会在需要时创建后端虚拟环境、安装项目依赖，并启动两个服务：
 
-- 后端 API：`http://127.0.0.1:8000`
-- 前端页面：`http://127.0.0.1:5173`
+| 服务 | 地址 |
+| --- | --- |
+| Web 界面 | `http://127.0.0.1:5173` |
+| 后端 API | `http://127.0.0.1:8000` |
+| 交互式 API 文档 | `http://127.0.0.1:8000/docs` |
+| 健康检查 | `http://127.0.0.1:8000/health` |
 
-脚本不会安装 Python、Node.js 这类系统级依赖。全新电脑需要先安装这些基础环境。
+API 根路径 `/` 不是 Web 页面，直接打开时可能返回 `404`；请访问 Web 界面或 API 文档。
 
-PowerShell、macOS、Linux 中按 `Ctrl+C` 停止；`start.bat` 会打开两个窗口，关闭窗口即可停止。
+### 3. 验证部署
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+预期响应：
+
+```json
+{"status":"ok"}
+```
+
+然后打开 `http://127.0.0.1:5173`，运行 [Demo 1](#demo-1reactvite-项目复现)。
 
 ### 手动启动
 
-如果需要分别排查前后端，可以使用手动命令。
+需要分别查看前后端日志时，可以在两个终端中启动服务。
 
 后端：
 
 ```bash
-cd "apps/api"
+cd apps/api
 python -m venv .venv
 
 # Windows
@@ -116,84 +220,101 @@ python -m venv .venv
 前端：
 
 ```bash
-cd "apps/web"
+cd apps/web
 npm install
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-打开 `http://127.0.0.1:5173` 即可使用。
+## 端到端 Demo
 
-## 后端 API 调用
+### Demo 1：React/Vite 项目复现
 
-后端 API 运行在 `http://127.0.0.1:8000`。根路径 `/` 不是前端页面，所以直接打开 `http://127.0.0.1:8000` 可能会看到 `404`。请使用接口文档或下面的具体接口：
+**输入：** [`examples/demo-react-app.zip`](examples/demo-react-app.zip)
 
-- API 文档：`http://127.0.0.1:8000/docs`
-- 健康检查：`GET /health`
-- 分析粘贴的项目上下文：`POST /analyze-text`
-- 分析上传的项目 zip：`POST /analyze-zip`
-- 诊断错误日志：`POST /diagnose-error`
-- 生成复现报告：`POST /generate-report`
+**操作流程：**
 
-健康检查：
+1. 打开 Web 界面。
+2. 上传 `examples/demo-react-app.zip`。
+3. 点击 **分析**，生成基于仓库证据的复现方案。
+4. 查看“分析”标签页，再点击 **报告**。
 
-```bash
-curl http://127.0.0.1:8000/health
-```
+**预期输出：** Hy3 根据仓库证据识别 Vite 和 React，推荐 Node.js/npm 命令，提示运行时版本不匹配或缺少锁文件等风险，给出验证步骤，并生成可复用的 Markdown 报告。
 
-分析粘贴文本：
+详细指南：[docs/demo-1-react.md](docs/demo-1-react.md)
 
-```bash
-curl -X POST http://127.0.0.1:8000/analyze-text \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_notes": "这里粘贴 README、文件树、package.json 或启动说明。",
-    "error_log": "这里粘贴可选的终端错误日志。"
-  }'
-```
+### Demo 2：Python 错误诊断
 
-上传并分析项目 zip：
+**输入：** 粘贴 [`examples/demo-python-error/README.md`](examples/demo-python-error/README.md) 中的项目上下文，以及 [`docs/demo-2-python-error.md`](docs/demo-2-python-error.md) 中的 `ModuleNotFoundError` 日志。
 
-```bash
-curl -X POST http://127.0.0.1:8000/analyze-zip \
-  -F "file=@/path/to/project.zip" \
-  -F "error_log=可选的终端错误日志"
-```
+**操作流程：**
 
-诊断错误日志：
+1. 将项目上下文粘贴到 **项目说明或 README**。
+2. 将终端日志粘贴到 **错误日志**。
+3. 依次点击 **分析** 和 **诊断**。
+4. 查看可能原因和修复步骤，再点击 **报告**。
 
-```bash
-curl -X POST http://127.0.0.1:8000/diagnose-error \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_context": "这里粘贴项目上下文。",
-    "error_log": "这里粘贴终端错误日志。"
-  }'
-```
+**预期输出：** Hy3 识别缺失的 `requests` 依赖，以 `requirements.txt` 为诊断依据，建议创建虚拟环境并执行 `pip install -r requirements.txt`，最后通过 `python main.py` 验证修复结果。
 
-根据前面结果生成报告：
+详细指南：[docs/demo-2-python-error.md](docs/demo-2-python-error.md)
 
-```bash
-curl -X POST http://127.0.0.1:8000/generate-report \
-  -H "Content-Type: application/json" \
-  -d '{
-    "analysis": "这里粘贴分析结果。",
-    "diagnosis": "这里粘贴诊断结果，也可以留空。"
-  }'
-```
+### Demo 视频 / GIF
+
+**即将补充：** 录制完成后，将在此处加入不超过两分钟的视频或 GIF。在此之前，上述两条可复现流程是本项目的标准 Demo 说明。
+
+## 后端 API
+
+| 方法 | 接口 | 用途 |
+| --- | --- | --- |
+| `GET` | `/health` | 检查后端是否正常运行 |
+| `POST` | `/analyze-text` | 分析粘贴的项目说明和可选错误日志 |
+| `POST` | `/analyze-zip` | 提取并分析上传的项目 zip |
+| `POST` | `/diagnose-error` | 结合项目上下文诊断终端错误 |
+| `POST` | `/generate-report` | 将分析与诊断结果整理为 Markdown 报告 |
+
+打开 `http://127.0.0.1:8000/docs` 可查看请求结构并直接调试接口。
 
 ## 常见问题
 
-- 提示 `HY3_API_KEY is not configured`：从 `.env.example` 创建 `.env`，并替换占位 key。
-- 提示找不到 Python：安装 Python 3.10+，并确认终端可以使用 `python`、`python3` 或 `py`。
-- 提示找不到 Node.js 包管理器：安装 Node.js 18+，或安装 pnpm。
-- 出现 `npm warn allow-scripts ... esbuild`：这是 npm 的安全提示，不代表安装失败。如果前端正常启动，可以忽略；如果后续 Vite 报 `esbuild` 相关错误，进入 `apps/web` 后执行 `npm approve-scripts --allow-scripts-pending`，批准 `esbuild`，再重新运行启动脚本。
-- `start.bat` 在 `found 0 vulnerabilities` 后停止：拉取最新版本。旧版 `start.bat` 没有用 `call` 调用 `npm`，Windows 批处理会在 `npm install` 后中断父脚本。
-- 端口被占用：停止占用 `8000` 或 `5173` 的进程，或修改启动脚本的端口参数。
-- `/health` 正常但模型调用失败：检查 `HY3_API_KEY`、`HY3_BASE_URL` 和 `HY3_MODEL`。
+- **提示 `HY3_API_KEY is not configured`：** 从 `.env.example` 创建 `.env`，并将占位值替换为有效 Key。
+- **找不到 Python：** 安装 Python 3.10+，并确认终端中可以使用 `python`、`python3` 或 `py`。
+- **找不到 Node.js 包管理器：** 安装带 npm 的 Node.js 18+，或安装 pnpm。
+- **端口被占用：** 停止占用 `8000` 或 `5173` 的进程，或在启动脚本支持的情况下传入其他端口。
+- **健康检查正常但模型调用失败：** 检查 `HY3_API_KEY`、`HY3_BASE_URL` 和 `HY3_MODEL`。
+- **npm 提示 `esbuild` 安装脚本未批准：** 如果 Vite 无法启动，在 `apps/web` 下执行 `npm approve-scripts --allow-scripts-pending`，批准 `esbuild` 后重试。
 
-## Demo
+更多说明见 [REQUIREMENTS.md](REQUIREMENTS.md)。
 
-- Demo 1：上传 `examples/demo-react-app.zip`，让 Hy3 生成 React/Vite 项目复现方案。
-- Demo 2：粘贴 Python 项目上下文和 `ModuleNotFoundError` 日志，让 Hy3 生成修复清单。
+## CodeBuddy 协作说明
 
-详细脚本见 [docs/demo-1-react.md](docs/demo-1-react.md) 和 [docs/demo-2-python-error.md](docs/demo-2-python-error.md)。
+CodeBuddy 协作完成的项目内容包括：
+
+- FastAPI 接口与 Hy3 兼容 API 集成。
+- React/Vite 交互式前端、双语界面文案、结果标签页和复制操作。
+- 仓库 zip 证据提取与压缩包路径安全校验。
+- 分析、诊断和报告生成所使用的提示词设计。
+- 跨平台一键启动脚本与环境变量处理。
+- Demo 输入、Issue 提交说明、故障排查内容和双语 README 组织。
+
+项目最终行为和文档内容均根据仓库中的实际代码与 Issue #4 要求进行了复核。
+
+## 安全说明
+
+- 真实 API Key 只应保存在 `.env` 或进程环境变量中，不要提交到仓库。
+- 解压前会校验 zip 成员路径，避免压缩包路径穿越。
+- 上传的仓库上下文在发送至已配置 API 前会受到长度限制。
+- 模型生成的 Markdown 在浏览器渲染前会通过 DOMPurify 净化。
+- 在陌生环境中运行模型建议的命令前，应先人工检查。
+
+## 相关文档
+
+- [环境要求](REQUIREMENTS.md)
+- [Hy3 角色与提示词原则](docs/hy3-role.md)
+- [Demo 1 指南](docs/demo-1-react.md)
+- [Demo 2 指南](docs/demo-2-python-error.md)
+- [提交说明](SUBMISSION.md)
+- [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
+- [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
+
+## 活动提交说明
+
+Issue #4 要求通过 Pull Request 将活动成果提交到 [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026)。RepoPilot Hy3 是独立应用仓库，因此该 PR 应补充本仓库链接、简要项目说明、两条 Demo 流程，以及录制完成后的视频/GIF 链接。

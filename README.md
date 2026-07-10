@@ -1,85 +1,158 @@
+<div align="center">
+
+[中文](README_CN.md) | English
+
 # RepoPilot Hy3
 
-[中文文档](README_CN.md)
+**A Hy3-powered repository reproduction and error diagnosis assistant.**
 
-RepoPilot Hy3 is an open-source project reproduction and error diagnosis assistant powered by Hy3. It helps developers understand unfamiliar repositories, produce runnable setup plans, diagnose terminal errors, and generate reproducible reports.
+Turn repository evidence and terminal logs into runnable setup plans, actionable diagnoses, and reusable Markdown reports.
 
-This project is designed for [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4): it demonstrates Hy3 in a concrete developer productivity scenario with an interactive frontend, backend API calls, and end-to-end demos.
+</div>
 
-## Why This Scenario
+---
 
-Reproducing a new repository is a common pain point: docs are incomplete, dependency versions drift, and terminal errors are noisy. RepoPilot Hy3 uses Hy3 as a development reproduction agent that reads project evidence, reasons over code and logs, and returns practical next steps with source-backed explanations.
+## Table of Contents
 
-## Hy3 Role
+- [Overview](#overview)
+- [Issue #4 Checklist](#issue-4-checklist)
+- [How Hy3 Powers RepoPilot](#how-hy3-powers-repopilot)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Quickstart](#quickstart)
+- [End-to-End Demos](#end-to-end-demos)
+- [Backend API](#backend-api)
+- [Troubleshooting](#troubleshooting)
+- [CodeBuddy Collaboration](#codebuddy-collaboration)
+- [Security Notes](#security-notes)
+- [Related Documentation](#related-documentation)
+- [Activity Submission](#activity-submission)
 
-Hy3 is the core reasoning engine in this application. It is responsible for:
+---
 
-- Understanding repository structure, dependency files, framework hints, and README content.
-- Generating a step-by-step reproduction plan.
-- Diagnosing pasted terminal errors with likely causes and fixes.
-- Producing a reproducibility report suitable for README, issue, or PR documentation.
-- Keeping responses grounded in uploaded files and user-provided logs.
+## Overview
 
-The app does not fine-tune or locally run a model. All intelligent analysis is performed through the Hy3 API.
+Reproducing an unfamiliar repository is rarely just a matter of running one command. Documentation may be incomplete, dependency versions drift, entry points are unclear, and terminal output is often too noisy to diagnose quickly.
+
+RepoPilot Hy3 turns that workflow into an interactive developer tool. Upload a project zip or paste repository notes, add an optional error log, and let Hy3 produce:
+
+- A project profile grounded in repository files.
+- Detected frameworks, runtimes, package managers, and entry points.
+- A step-by-step reproduction checklist with likely run commands.
+- Root-cause hypotheses and repair steps for terminal errors.
+- A copy-ready Markdown reproduction report for a README, Issue, or PR.
+
+This project was created for [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4), which asks participants to build an end-to-end application powered by the Hy3 API in a concrete real-world scenario.
+
+## Issue #4 Checklist
+
+| Issue requirement | Status in this repository | Evidence |
+| --- | --- | --- |
+| Use the Hy3 API without training, fine-tuning, or local inference | Complete | The FastAPI backend calls a configurable Hy3-compatible OpenAI API |
+| Provide at least one interactive frontend | Complete | Bilingual React/Vite web interface with upload, text input, actions, tabs, and copy controls |
+| Run at least two end-to-end demo flows | Complete | React/Vite reproduction and Python error diagnosis demos are documented below |
+| Attach a video or GIF no longer than two minutes | **Coming soon** | The media slot is reserved below; no placeholder link is published |
+| Make project source available and explain Hy3's role | Documented | Repository source is public and Hy3 responsibilities are described below; this README makes no license claim |
+| Record CodeBuddy-assisted work | Documented | Collaboration areas are listed in [CodeBuddy Collaboration](#codebuddy-collaboration) |
+
+## How Hy3 Powers RepoPilot
+
+Hy3 is the reasoning engine of RepoPilot, not a local dependency or a generic chat widget. The application uses Hy3 to:
+
+- Understand README content, dependency manifests, configuration files, file trees, and terminal logs.
+- Infer the project stack and produce evidence-backed setup instructions.
+- Diagnose installation and runtime errors with likely causes, commands, and verification steps.
+- Convert prior analysis and diagnosis into a structured Markdown reproduction report.
+
+```text
+Developer input
+    -> React web UI
+    -> FastAPI evidence extraction and prompt construction
+    -> Hy3 API
+    -> sanitized, copyable Markdown
+```
+
+All model intelligence is accessed through the configured API endpoint. RepoPilot Hy3 performs **no model training, fine-tuning, local inference, or local model deployment**.
+
+For uploaded archives, the backend validates zip paths before extraction, selects relevant text files, and bounds the submitted context. The frontend sanitizes model-generated Markdown before rendering it.
 
 ## Features
 
-- Upload a project zip or paste repository notes.
-- Extract important files such as `README.md`, `package.json`, `requirements.txt`, `pyproject.toml`, `Dockerfile`, and config files.
-- Generate project profile, run commands, risk points, and verification steps.
-- Diagnose errors from terminal logs.
-- Generate a Markdown reproduction report.
-- Interactive web UI with copy-friendly results.
-
-## Submission Highlights
-
-- Concrete Hy3 scenario: open-source repository reproduction, not a generic chat UI.
-- Evidence-grounded workflow: zip extraction preserves file paths and asks Hy3 to cite repository evidence.
-- Full loop: analyze repository, diagnose terminal error, and generate a report for issues or PRs.
-- Practical developer UX: upload, paste, copy, and demo inputs are included.
-- Safer implementation details: zip paths are validated before extraction, and model-rendered Markdown is sanitized in the browser.
+- Upload a project `.zip` or paste a README, file tree, configuration, and setup notes.
+- Extract high-value evidence from files such as `README.md`, `package.json`, `requirements.txt`, `pyproject.toml`, `Dockerfile`, and framework configs.
+- Generate project profiles, likely commands, risks, and verification plans.
+- Diagnose pasted terminal errors and stack traces.
+- Generate reusable Markdown reproduction reports.
+- Switch the web interface between English and Chinese.
+- Copy analysis, diagnosis, and report results directly from the UI.
 
 ## Project Structure
 
 ```text
 RepoPilot Hy3/
-  apps/
-    api/                 # FastAPI backend
-    web/                 # Vite React frontend
-  docs/                  # demo scripts and Hy3 role notes
-  examples/              # small demo inputs
-  .github/               # issue templates and project management docs
-  README.md
+├── apps/
+│   ├── api/                  # FastAPI backend and Hy3 API integration
+│   └── web/                  # React/Vite interactive frontend
+├── docs/                     # Demo guides and Hy3 role notes
+├── examples/                 # Bundled demo inputs
+├── .env.example              # Hy3 API configuration template
+├── start.ps1                 # One-click startup for PowerShell
+├── start.bat                 # One-click startup for Command Prompt
+├── start.sh                  # One-click startup for macOS/Linux
+├── README.md                 # English documentation
+└── README_CN.md              # Chinese documentation
 ```
 
-## Quick Start
+## Quickstart
 
 ### Requirements
 
-- Python 3.10+ with `venv` and `pip`
-- Node.js 18+ with `npm`
-- Network access to PyPI, npm registry, and the Hy3 API endpoint
-- A Hy3-compatible API key
-- Free local ports `8000` and `5173`
+- Python 3.10+ with `venv` and `pip`.
+- Node.js 18+ with `npm` (or `pnpm`).
+- Network access to the Python and JavaScript package registries and the configured Hy3 API endpoint.
+- A Hy3-compatible API key.
+- Free local ports `8000` and `5173`.
 
-See [REQUIREMENTS.md](REQUIREMENTS.md) for the full dependency checklist.
+See [REQUIREMENTS.md](REQUIREMENTS.md) for the complete environment checklist and platform-specific notes.
 
-### 1. Configure Hy3
-
-Copy `.env.example` to either the repository root or `apps/api/.env`, then set your key:
+### 1. Clone and configure
 
 ```bash
-HY3_API_KEY=your_key_here
+git clone https://github.com/BoyuChen1224/repopilot-hy3.git
+cd repopilot-hy3
+```
+
+Copy the environment template:
+
+```powershell
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+```bat
+:: Windows Command Prompt
+copy .env.example .env
+```
+
+```bash
+# macOS / Linux
+cp .env.example .env
+```
+
+Edit `.env` and replace the API-key placeholder:
+
+```dotenv
+HY3_API_KEY=your_hy3_api_key
 HY3_BASE_URL=https://tokenhub.tencentmaas.com/v1
 HY3_MODEL=hy3
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-Never commit real API keys.
+Never commit a real API key. The backend also accepts `apps/api/.env` if you prefer service-local configuration.
 
-### 2. One-Click Startup
+### 2. Start both services
 
-Run the startup script for your platform from the repository root.
+Run one command from the repository root.
 
 Windows PowerShell:
 
@@ -100,23 +173,39 @@ chmod +x ./start.sh
 ./start.sh
 ```
 
-The scripts install missing backend and frontend dependencies, then start:
+The startup script creates the backend virtual environment when needed, installs project dependencies, and starts both services:
 
-- API: `http://127.0.0.1:8000`
-- Web: `http://127.0.0.1:5173`
+| Service | URL |
+| --- | --- |
+| Web interface | `http://127.0.0.1:5173` |
+| Backend API | `http://127.0.0.1:8000` |
+| Interactive API docs | `http://127.0.0.1:8000/docs` |
+| Health check | `http://127.0.0.1:8000/health` |
 
-They do not install system dependencies such as Python or Node.js. Install those first on a new computer.
+The API root `/` is not a web page and may return `404`; open the web interface or API docs instead.
 
-Press `Ctrl+C` in PowerShell/macOS/Linux, or close the two windows opened by `start.bat`, to stop the project.
+### 3. Verify the deployment
 
-### Manual Startup
+```bash
+curl http://127.0.0.1:8000/health
+```
 
-Use these commands if you want to run the two services separately.
+Expected response:
+
+```json
+{"status":"ok"}
+```
+
+Then open `http://127.0.0.1:5173` and run [Demo 1](#demo-1-reactvite-project-reproduction).
+
+### Manual startup
+
+Use separate terminals when you need to inspect each service independently.
 
 Backend:
 
 ```bash
-cd "apps/api"
+cd apps/api
 python -m venv .venv
 
 # Windows
@@ -131,100 +220,101 @@ python -m venv .venv
 Frontend:
 
 ```bash
-cd "apps/web"
+cd apps/web
 npm install
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Open `http://127.0.0.1:5173`.
+## End-to-End Demos
 
-## Backend API Usage
+### Demo 1: React/Vite project reproduction
 
-The backend API runs at `http://127.0.0.1:8000`. The root path `/` is not a web page, so a browser request to `http://127.0.0.1:8000` may return `404`. Use the API docs or one of the endpoints below:
+**Input:** [`examples/demo-react-app.zip`](examples/demo-react-app.zip)
 
-- API docs: `http://127.0.0.1:8000/docs`
-- Health check: `GET /health`
-- Analyze pasted project context: `POST /analyze-text`
-- Analyze uploaded project zip: `POST /analyze-zip`
-- Diagnose an error log: `POST /diagnose-error`
-- Generate a reproduction report: `POST /generate-report`
+**Flow:**
 
-Health check:
+1. Open the web interface.
+2. Upload `examples/demo-react-app.zip`.
+3. Select **Analyze** to generate an evidence-backed reproduction plan.
+4. Review the Analysis tab, then select **Report**.
 
-```bash
-curl http://127.0.0.1:8000/health
-```
+**Expected output:** Hy3 identifies Vite and React from repository evidence, recommends Node.js/npm commands, highlights risks such as runtime-version mismatch or a missing lockfile, provides verification steps, and produces a reusable Markdown report.
 
-Analyze pasted text:
+Detailed guide: [docs/demo-1-react.md](docs/demo-1-react.md)
 
-```bash
-curl -X POST http://127.0.0.1:8000/analyze-text \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_notes": "Paste README, file tree, package.json, or setup notes here.",
-    "error_log": "Optional terminal error log."
-  }'
-```
+### Demo 2: Python error diagnosis
 
-Upload and analyze a project zip:
+**Input:** Paste the project context from [`examples/demo-python-error/README.md`](examples/demo-python-error/README.md) and the `ModuleNotFoundError` log from [`docs/demo-2-python-error.md`](docs/demo-2-python-error.md).
 
-```bash
-curl -X POST http://127.0.0.1:8000/analyze-zip \
-  -F "file=@/path/to/project.zip" \
-  -F "error_log=Optional terminal error log."
-```
+**Flow:**
 
-Diagnose an error log:
+1. Paste the project context into **Project notes or README**.
+2. Paste the terminal log into **Error log**.
+3. Select **Analyze**, then **Diagnose**.
+4. Review the likely cause and repair steps, then select **Report**.
 
-```bash
-curl -X POST http://127.0.0.1:8000/diagnose-error \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_context": "Paste project context here.",
-    "error_log": "Paste the terminal error log here."
-  }'
-```
+**Expected output:** Hy3 identifies the missing `requests` dependency, grounds the diagnosis in `requirements.txt`, recommends a virtual environment and `pip install -r requirements.txt`, and verifies the repair with `python main.py`.
 
-Generate a report from previous outputs:
+Detailed guide: [docs/demo-2-python-error.md](docs/demo-2-python-error.md)
 
-```bash
-curl -X POST http://127.0.0.1:8000/generate-report \
-  -H "Content-Type: application/json" \
-  -d '{
-    "analysis": "Paste the analysis response here.",
-    "diagnosis": "Paste the diagnosis response here, or leave empty."
-  }'
-```
+### Demo video / GIF
+
+**Coming soon:** a video or GIF no longer than two minutes will be added here after recording. Until then, the two reproducible workflows above are the canonical demo instructions.
+
+## Backend API
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Verify that the backend is running |
+| `POST` | `/analyze-text` | Analyze pasted project notes and an optional error log |
+| `POST` | `/analyze-zip` | Extract and analyze an uploaded project zip |
+| `POST` | `/diagnose-error` | Diagnose a terminal error using project context |
+| `POST` | `/generate-report` | Convert analysis and diagnosis into a Markdown report |
+
+Open `http://127.0.0.1:8000/docs` for request schemas and an interactive API client.
 
 ## Troubleshooting
 
-- `HY3_API_KEY is not configured`: create `.env` from `.env.example` and replace the placeholder key.
-- `Python was not found`: install Python 3.10+ and make sure `python`, `python3`, or `py` is available in your terminal.
-- `Node.js package manager was not found`: install Node.js 18+ with npm, or install pnpm.
-- `npm warn allow-scripts ... esbuild`: this is an npm security warning, not an install failure. If the web app starts normally, you can ignore it. If Vite later fails with an `esbuild` error, run `cd apps/web`, then `npm approve-scripts --allow-scripts-pending`, approve `esbuild`, and run the startup script again.
-- `start.bat` stops right after `found 0 vulnerabilities`: pull the latest version of this repository. Older `start.bat` files called `npm` without `call`, which makes Windows batch scripts stop after `npm install`.
-- Port already in use: stop the existing process on `8000` or `5173`, or edit the startup script port arguments.
-- Model calls fail but `/health` works: check `HY3_API_KEY`, `HY3_BASE_URL`, and `HY3_MODEL`.
+- **`HY3_API_KEY is not configured`:** create `.env` from `.env.example` and replace the placeholder with a valid key.
+- **Python was not found:** install Python 3.10+ and ensure `python`, `python3`, or `py` is available in your terminal.
+- **Node.js package manager was not found:** install Node.js 18+ with npm, or install pnpm.
+- **Port already in use:** stop the process using `8000` or `5173`, or pass different ports to the startup script where supported.
+- **The API health check works but model calls fail:** verify `HY3_API_KEY`, `HY3_BASE_URL`, and `HY3_MODEL`.
+- **npm warns about an unapproved `esbuild` install script:** if Vite does not start, run `npm approve-scripts --allow-scripts-pending` under `apps/web`, approve `esbuild`, and retry.
 
-## End-to-End Demos
+More details: [REQUIREMENTS.md](REQUIREMENTS.md)
 
-- Demo 1: Analyze a React/Vite project and generate a runnable reproduction plan.
-- Demo 2: Diagnose a Python `ModuleNotFoundError` from a terminal log and produce a repair checklist.
+## CodeBuddy Collaboration
 
-See [docs/demo-1-react.md](docs/demo-1-react.md) and [docs/demo-2-python-error.md](docs/demo-2-python-error.md).
+CodeBuddy-assisted development covered the following project areas:
 
-## Submission Notes
+- FastAPI endpoints and the Hy3-compatible API integration.
+- React/Vite interactive frontend, bilingual UI copy, result tabs, and copy actions.
+- Repository zip evidence extraction and archive-path validation.
+- Prompt design for analysis, diagnosis, and report generation.
+- Cross-platform one-click startup scripts and environment handling.
+- Demo inputs, issue-facing notes, troubleshooting guidance, and bilingual README organization.
 
-See [SUBMISSION.md](SUBMISSION.md) for the issue response draft, demo checklist, and reviewer-facing project summary.
+The final project behavior and documentation were reviewed against the checked-in source and the Issue #4 requirements.
 
-## GitHub Project Management
+## Security Notes
 
-Use GitHub Issues and Projects with the workflow in [.github/PROJECT_MANAGEMENT.md](.github/PROJECT_MANAGEMENT.md). Suggested labels:
+- Keep real API keys only in `.env` or your process environment; do not commit them.
+- Zip member paths are validated before extraction to prevent archive path traversal.
+- Uploaded repository context is size-limited before it is sent to the configured API.
+- Model-generated Markdown is sanitized with DOMPurify before browser rendering.
+- Review generated commands before running them in an unfamiliar environment.
 
-- `feature`
-- `bug`
-- `demo`
-- `docs`
-- `hy3-prompt`
-- `frontend`
-- `backend`
+## Related Documentation
+
+- [Environment requirements](REQUIREMENTS.md)
+- [Hy3 role and prompting principles](docs/hy3-role.md)
+- [Demo 1 guide](docs/demo-1-react.md)
+- [Demo 2 guide](docs/demo-2-python-error.md)
+- [Submission notes](SUBMISSION.md)
+- [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
+- [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
+
+## Activity Submission
+
+Issue #4 requires activity work to be submitted through a pull request targeting [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026). Because RepoPilot Hy3 is an independent application repository, that pull request should include this repository's URL, a concise project description, the two demo flows, and the final video/GIF link after it is recorded.
