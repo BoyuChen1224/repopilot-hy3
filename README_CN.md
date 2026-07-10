@@ -311,7 +311,6 @@ CodeBuddy 协作完成的项目内容包括：
 - [Hy3 角色与提示词原则](docs/hy3-role.md)
 - [Demo 1 指南](docs/demo-1-react.md)
 - [Demo 2 指南](docs/demo-2-python-error.md)
-- [提交说明](SUBMISSION.md)
 - [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
 - [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
 

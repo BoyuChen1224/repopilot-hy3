@@ -311,7 +311,6 @@ The final project behavior and documentation were reviewed against the checked-i
 - [Hy3 role and prompting principles](docs/hy3-role.md)
 - [Demo 1 guide](docs/demo-1-react.md)
 - [Demo 2 guide](docs/demo-2-python-error.md)
-- [Submission notes](SUBMISSION.md)
 - [Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)
 - [Tencent-Hunyuan/Hy3](https://github.com/Tencent-Hunyuan/Hy3)
 
