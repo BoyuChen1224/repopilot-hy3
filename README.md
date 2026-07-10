@@ -1,5 +1,7 @@
 # RepoPilot Hy3
 
+[中文文档](README_CN.md)
+
 RepoPilot Hy3 is an open-source project reproduction and error diagnosis assistant powered by Hy3. It helps developers understand unfamiliar repositories, produce runnable setup plans, diagnose terminal errors, and generate reproducible reports.
 
 This project is designed for [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4): it demonstrates Hy3 in a concrete developer productivity scenario with an interactive frontend, backend API calls, and end-to-end demos.

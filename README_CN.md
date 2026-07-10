@@ -1,5 +1,7 @@
 # RepoPilot Hy3
 
+[English README](README.md)
+
 RepoPilot Hy3 是一个由 Hy3 驱动的开源项目复现与报错诊断助手。它帮助开发者理解陌生仓库、生成可运行的启动方案、诊断终端错误，并输出可复制到 README、Issue 或 PR 的复现报告。
 
 本项目面向 [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/Tencent-Hunyuan/Hy3/issues/4)，展示 Hy3 在“开源项目复现”这一具体开发场景中的能力。
