@@ -74,9 +74,17 @@ input {
 
 .brand {
   display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.brandIdentity {
+  display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 18px;
+  min-width: 0;
 }
 
 .brand h1 {
@@ -92,6 +100,7 @@ input {
 }
 
 .brandMark {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: 42px;
@@ -99,6 +108,23 @@ input {
   border-radius: 8px;
   color: #ffffff;
   background: #155eef;
+}
+
+.languageToggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .upload {
