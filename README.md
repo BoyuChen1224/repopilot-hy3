@@ -51,7 +51,7 @@ This project was created for [Tencent-Hunyuan/Hy3 Issue #4](https://github.com/T
 | Use the Hy3 API without training, fine-tuning, or local inference | Complete | The FastAPI backend calls a configurable Hy3-compatible OpenAI API |
 | Provide at least one interactive frontend | Complete | Bilingual React/Vite web interface with upload, text input, actions, tabs, and copy controls |
 | Run at least two end-to-end demo flows | Complete | React/Vite reproduction and Python error diagnosis demos are documented below |
-| Attach a video or GIF no longer than two minutes | **Coming soon** | The media slot is reserved below; no placeholder link is published |
+| Attach a video or GIF no longer than two minutes | Complete | Two 1080p walkthroughs are available under [Demo videos](#demo-videos); each is under one minute |
 | Make project source available and explain Hy3's role | Documented | Repository source is public and Hy3 responsibilities are described below; this README makes no license claim |
 | Record CodeBuddy-assisted work | Documented | Collaboration areas are listed in [CodeBuddy Collaboration](#codebuddy-collaboration) |
 
@@ -95,6 +95,7 @@ RepoPilot Hy3/
 │   └── web/                  # React/Vite interactive frontend
 ├── docs/                     # Demo guides and Hy3 role notes
 ├── examples/                 # Bundled demo inputs
+├── video/                    # Demo 1 and Demo 2 walkthrough videos
 ├── .env.example              # Hy3 API configuration template
 ├── start.ps1                 # One-click startup for PowerShell
 ├── start.bat                 # One-click startup for Command Prompt
@@ -257,9 +258,14 @@ Detailed guide: [docs/demo-1-react.md](docs/demo-1-react.md)
 
 Detailed guide: [docs/demo-2-python-error.md](docs/demo-2-python-error.md)
 
-### Demo video / GIF
+### Demo videos
 
-**Coming soon:** a video or GIF no longer than two minutes will be added here after recording. Until then, the two reproducible workflows above are the canonical demo instructions.
+| Demo | Video | Duration | Resolution |
+| --- | --- | --- | --- |
+| React/Vite project reproduction | [Watch Demo 1](video/Demo_1.mp4) | 00:47 | 1920×1080 |
+| Python error diagnosis | [Watch Demo 2](video/Demo_2.mp4) | 00:59 | 1920×1080 |
+
+Both walkthroughs are shorter than the two-minute limit in Issue #4. If the browser does not play an MP4 inline, open the linked file from its GitHub file page.
 
 ## Backend API
 
@@ -316,4 +322,4 @@ The final project behavior and documentation were reviewed against the checked-i
 
 ## Activity Submission
 
-Issue #4 requires activity work to be submitted through a pull request targeting [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026). Because RepoPilot Hy3 is an independent application repository, that pull request should include this repository's URL, a concise project description, the two demo flows, and the final video/GIF link after it is recorded.
+Issue #4 requires activity work to be submitted through a pull request targeting [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026). Because RepoPilot Hy3 is an independent application repository, that pull request should include this repository's URL, a concise project description, the two demo flows, and the [Demo 1](video/Demo_1.mp4) and [Demo 2](video/Demo_2.mp4) video links.

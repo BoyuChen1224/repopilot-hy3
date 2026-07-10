@@ -51,7 +51,7 @@ RepoPilot Hy3 将这套流程组织成一个交互式开发者工具。上传项
 | 通过 Hy3 API 调用模型，不训练、不微调、不做本地推理 | 已完成 | FastAPI 后端调用可配置的 Hy3 兼容 OpenAI API |
 | 至少提供一个可交互前端 | 已完成 | 双语 React/Vite Web 界面，支持上传、文本输入、操作按钮、结果标签页与复制 |
 | 至少跑通两个端到端 Demo | 已完成 | 下文提供 React/Vite 项目复现与 Python 错误诊断流程 |
-| 提供不超过两分钟的视频或 GIF | **即将补充** | 下文已保留演示媒体位置，不发布无效占位链接 |
+| 提供不超过两分钟的视频或 GIF | 已完成 | [Demo 视频](#demo-视频)提供两段 1080p 演示，每段均不超过一分钟 |
 | 公开项目源码并说明 Hy3 的角色 | 已记录 | 仓库源码公开，Hy3 职责在下文完整说明；本 README 不作许可证声明 |
 | 记录 CodeBuddy 协作完成的内容 | 已记录 | 详见 [CodeBuddy 协作说明](#codebuddy-协作说明) |
 
@@ -95,6 +95,7 @@ RepoPilot Hy3/
 │   └── web/                  # React/Vite 交互式前端
 ├── docs/                     # Demo 指南与 Hy3 角色说明
 ├── examples/                 # 内置 Demo 输入
+├── video/                    # Demo 1 与 Demo 2 演示视频
 ├── .env.example              # Hy3 API 配置模板
 ├── start.ps1                 # PowerShell 一键启动脚本
 ├── start.bat                 # 命令提示符一键启动脚本
@@ -257,9 +258,14 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 详细指南：[docs/demo-2-python-error.md](docs/demo-2-python-error.md)
 
-### Demo 视频 / GIF
+### Demo 视频
 
-**即将补充：** 录制完成后，将在此处加入不超过两分钟的视频或 GIF。在此之前，上述两条可复现流程是本项目的标准 Demo 说明。
+| Demo | 视频 | 时长 | 分辨率 |
+| --- | --- | --- | --- |
+| React/Vite 项目复现 | [观看 Demo 1](video/Demo_1.mp4) | 00:47 | 1920×1080 |
+| Python 错误诊断 | [观看 Demo 2](video/Demo_2.mp4) | 00:59 | 1920×1080 |
+
+两段视频均满足 Issue #4 的两分钟以内要求。如果浏览器无法内嵌播放 MP4，请从对应的 GitHub 文件页面打开视频。
 
 ## 后端 API
 
@@ -316,4 +322,4 @@ CodeBuddy 协作完成的项目内容包括：
 
 ## 活动提交说明
 
-Issue #4 要求通过 Pull Request 将活动成果提交到 [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026)。RepoPilot Hy3 是独立应用仓库，因此该 PR 应补充本仓库链接、简要项目说明、两条 Demo 流程，以及录制完成后的视频/GIF 链接。
+Issue #4 要求通过 Pull Request 将活动成果提交到 [`Tencent-Hunyuan/Hy3:rhinobird2026`](https://github.com/Tencent-Hunyuan/Hy3/tree/rhinobird2026)。RepoPilot Hy3 是独立应用仓库，因此该 PR 应补充本仓库链接、简要项目说明、两条 Demo 流程，以及 [Demo 1](video/Demo_1.mp4) 和 [Demo 2](video/Demo_2.mp4) 视频链接。
