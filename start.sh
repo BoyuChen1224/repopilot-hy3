@@ -12,12 +12,55 @@ WEB_PORT="${WEB_PORT:-5173}"
 
 load_env() {
   file="$1"
-  if [ -f "$file" ]; then
-    set -a
-    # shellcheck disable=SC1090
-    . "$file"
-    set +a
+  if [ ! -f "$file" ]; then
+    return
   fi
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    line=$(printf '%s' "$line" | tr -d '\r')
+
+    case "$line" in
+      ""|\#*) continue ;;
+      export\ *) line=${line#export } ;;
+    esac
+
+    case "$line" in
+      *=*) ;;
+      *) continue ;;
+    esac
+
+    name=${line%%=*}
+    value=${line#*=}
+    name=$(printf '%s' "$name" | tr -d '[:space:]')
+
+    case "$value" in
+      \"*\") value=${value#\"}; value=${value%\"} ;;
+      \'*\') value=${value#\'}; value=${value%\'} ;;
+    esac
+
+    case "$name" in
+      HY3_API_KEY)
+        if [ "${HY3_API_KEY:-}" = "" ]; then
+          export HY3_API_KEY="$value"
+        fi
+        ;;
+      HY3_BASE_URL)
+        if [ "${HY3_BASE_URL:-}" = "" ]; then
+          export HY3_BASE_URL="$value"
+        fi
+        ;;
+      HY3_MODEL)
+        if [ "${HY3_MODEL:-}" = "" ]; then
+          export HY3_MODEL="$value"
+        fi
+        ;;
+      VITE_API_BASE_URL)
+        if [ "${VITE_API_BASE_URL:-}" = "" ]; then
+          export VITE_API_BASE_URL="$value"
+        fi
+        ;;
+    esac
+  done < "$file"
 }
 
 find_python() {

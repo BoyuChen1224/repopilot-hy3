@@ -95,6 +95,22 @@ npm approve-scripts --allow-scripts-pending
 
 Select and approve `esbuild`, then run the startup script again.
 
+## WSL `.env` line ending error
+
+If WSL prints an error like this when running `./start.sh`:
+
+```text
+: not found 5: /path/to/repopilot-hy3/.env:
+```
+
+Update to the latest repository version. The fixed `start.sh` parses `.env` line by line and tolerates Windows CRLF line endings.
+
+If you cannot update immediately, convert `.env` to Linux line endings as a temporary workaround:
+
+```bash
+sed -i 's/\r$//' .env
+```
+
 ## Windows batch stops after npm install
 
 If `start.bat` stops immediately after this line:
