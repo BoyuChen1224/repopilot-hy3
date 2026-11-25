@@ -12,8 +12,8 @@ RepoPilot Hy3 includes one-click startup scripts, but a fresh computer still nee
 - Network access to:
   - PyPI, for backend Python packages
   - npm registry, for frontend packages
-  - `https://tokenhub.tencentmaas.com/v1`, for Hy3 API calls
-- A Hy3-compatible API key
+  - `https://tokenhub.tencentmaas.com/v1`, for model API calls
+- A compatible model API key
 - Available local ports:
   - `8000` for the FastAPI backend
   - `5173` for the Vite frontend
@@ -55,7 +55,7 @@ Create `.env` in the repository root or `apps/api/.env`:
 ```bash
 HY3_API_KEY=your_key_here
 HY3_BASE_URL=https://tokenhub.tencentmaas.com/v1
-HY3_MODEL=hy3
+HY3_MODEL=hy4-flash
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+import secrets
 
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,6 +8,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 API_ROOT = Path(__file__).resolve().parents[2]
 DATA_ROOT = PROJECT_ROOT / ".data"
+
+
+def _local_encryption_key() -> str:
+    DATA_ROOT.mkdir(parents=True, exist_ok=True)
+    key_file = DATA_ROOT / "token.key"
+    try:
+        with key_file.open("x", encoding="utf-8") as handle:
+            value = secrets.token_urlsafe(48)
+            handle.write(value)
+        try:
+            key_file.chmod(0o600)
+        except OSError:
+            pass
+        return value
+    except FileExistsError:
+        value = key_file.read_text(encoding="utf-8").strip()
+        if not value:
+            raise RuntimeError("The local token encryption key is empty")
+        return value
 
 
 class Settings(BaseSettings):
@@ -37,8 +57,8 @@ class Settings(BaseSettings):
     dashscope_embedding_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     rerank_api_key: str | None = None
     rerank_base_url: str | None = None
-    qwen_rerank_model: str = "qwen3-rerank"
-    qwen_retrieval_instruction: str = "Given a user question, retrieve passages that contain the facts needed to answer it."
+    qwen_rerank_model: str = Field(default="qwen3-rerank", validation_alias=AliasChoices("RERANK_MODEL", "QWEN_RERANK_MODEL"))
+    rerank_instruction: str | None = None
 
     milvus_enabled: bool = False
     milvus_uri: str = "http://localhost:19530"
@@ -86,8 +106,8 @@ class Settings(BaseSettings):
     repo_checkout_dir: str = str(DATA_ROOT / "repos")
     upload_dir: str = str(DATA_ROOT / "uploads")
 
-    token_encryption_key: str = "change-me-in-local-dev"
-    demo_mode: bool = True
+    token_encryption_key: str = Field(default_factory=_local_encryption_key)
+    demo_mode: bool = False
     github_webhook_secret: str | None = None
     feishu_feedback_webhook_url: str | None = None
     feedback_trace_base_url: str | None = None

@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.models import (
     Document,
+    KnowledgeBaseConfig,
     KnowledgeSourceDocument,
     Repository,
     RetrievalTestRun,
@@ -33,7 +34,7 @@ from app.schemas.rag import (
 )
 from app.services.rag.document_extraction import MAX_DOCUMENT_BYTES
 from app.services.rag.document_processing import SUPPORTED_KNOWLEDGE_SUFFIXES, process_knowledge_document
-from app.services.rag.embeddings import validate_embedding_contract
+from app.services.rag.embeddings import embedding_contract, validate_embedding_contract
 from app.services.rag.knowledge_base import (
     config_dict,
     get_or_create_config,
@@ -93,7 +94,7 @@ def _document_response(item: KnowledgeSourceDocument) -> KnowledgeDocumentRespon
 
 
 def _knowledge_base(db: Session, repo: Repository) -> KnowledgeBaseResponse:
-    config = get_or_create_config(db, repo.id)
+    config = get_or_create_config(db, repo.id, enforce_contract=False)
     document_count, character_count = (
         db.query(func.count(KnowledgeSourceDocument.id), func.coalesce(func.sum(KnowledgeSourceDocument.character_count), 0))
         .filter(KnowledgeSourceDocument.repo_id == repo.id)
@@ -395,11 +396,22 @@ async def ask_rag(repo_id: uuid.UUID, payload: RAGQueryRequest, db: Session = De
 @router.post("/{repo_id}/reindex", response_model=RAGReindexResponse)
 async def reindex_rag(repo_id: uuid.UUID, db: Session = Depends(get_db)) -> RAGReindexResponse:
     _repo_or_404(db, repo_id)
-    config = get_or_create_config(db, repo_id)
-    count = reindex_documents(db, repo_id)
+    config = get_or_create_config(db, repo_id, commit=False, enforce_contract=False)
+    contract = embedding_contract()
+    config.embedding_provider = str(contract["provider"])
+    config.embedding_model = str(contract["model"])
+    config.embedding_dimensions = int(contract["dimensions"])
+    db.flush()
+    try:
+        count = reindex_documents(db, repo_id)
+    except Exception:
+        db.rollback()
+        raise
     return RAGReindexResponse(
         repo_id=repo_id,
         indexed_documents=count,
         embedding_provider=config.embedding_provider,
         embedding_model=config.embedding_model,
+        vector_status="ready" if settings.milvus_enabled else "degraded",
+        message="向量索引已重建" if settings.milvus_enabled else "文档索引已更新；向量检索未启用",
     )

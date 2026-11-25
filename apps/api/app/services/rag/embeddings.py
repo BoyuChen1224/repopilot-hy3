@@ -1,6 +1,5 @@
 import hashlib
 import math
-import os
 import re
 from functools import lru_cache
 from typing import Any
@@ -106,11 +105,11 @@ def _embed_openai_compatible(
     api_key: str | None = None,
     base_url: str | None = None,
 ) -> list[list[float]]:
-    api_key = api_key or settings.embedding_api_key or os.getenv("OPENAI_API_KEY") or settings.llm_api_key
-    base_url = (base_url or settings.embedding_base_url or settings.llm_base_url).rstrip("/")
+    api_key = api_key or settings.embedding_api_key
+    base_url = (base_url or settings.embedding_base_url or "").rstrip("/")
     model = model or settings.embedding_model
-    if not api_key:
-        raise RuntimeError("embedding API key is not configured")
+    if not api_key or not base_url:
+        raise RuntimeError("Independent embedding API key and base URL must be configured")
 
     with httpx.Client(timeout=60) as client:
         response = client.post(

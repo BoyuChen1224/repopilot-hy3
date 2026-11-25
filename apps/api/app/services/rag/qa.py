@@ -237,6 +237,14 @@ def reindex_documents(db: Session, repo_id: str | uuid.UUID) -> int:
         for key in ["embedding_provider", "embedding_model", "embedding_dimensions"]:
             metadata.pop(key, None)
         doc.meta = {**metadata, **policy_metadata(doc.source_type)}
+    if not settings.milvus_enabled:
+        for doc in rag_documents:
+            metadata = dict(doc.meta or {})
+            for key in ["embedding_provider", "embedding_model", "embedding_dimensions"]:
+                metadata.pop(key, None)
+            doc.meta = {**metadata, **policy_metadata(doc.source_type), "vector_status": "degraded"}
+        db.commit()
+        return len(rag_documents)
     vector_batches: list[tuple[list[Document], list[list[float]]]] = []
     for start in range(0, len(rag_documents), 64):
         batch = rag_documents[start : start + 64]
@@ -259,8 +267,10 @@ def reindex_documents(db: Session, repo_id: str | uuid.UUID) -> int:
         if len(vectors) != len(batch):
             raise ValueError("embedding count does not match RAG document batch")
         for doc in batch:
+            metadata = dict(doc.meta or {})
+            metadata.pop("vector_status", None)
             doc.meta = {
-                **(doc.meta or {}),
+                **metadata,
                 **policy_metadata(doc.source_type),
                 "embedding_provider": provider,
                 "embedding_model": model,

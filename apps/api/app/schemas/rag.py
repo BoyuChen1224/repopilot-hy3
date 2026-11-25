@@ -118,7 +118,6 @@ class RetrievalTestHistoryResponse(BaseModel):
 class ModelCatalogResponse(BaseModel):
     embedding_models: list[dict[str, Any]]
     rerank_models: list[dict[str, Any]]
-    deepseek: dict[str, Any]
 
 
 class RAGAnswerResponse(BaseModel):
@@ -149,3 +148,5 @@ class RAGReindexResponse(BaseModel):
     indexed_documents: int
     embedding_provider: str
     embedding_model: str
+    vector_status: str
+    message: str

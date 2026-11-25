@@ -15,7 +15,7 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'requests'
 ```
 
-## Expected Hy3 Output
+## Expected Model Output
 
 - Identifies the missing dependency.
 - Points to `requirements.txt` as the evidence source.

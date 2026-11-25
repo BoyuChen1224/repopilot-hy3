@@ -167,7 +167,7 @@ def _sync_checkout(repo: Repository, token: str | None) -> Path:
     checkout_mode = getattr(repo, "checkout_mode", None) or "managed"
 
     if stored_path and checkout_mode == "local":
-        if getattr(repo, "provider", None) == "local_archive" and stored_path.is_dir():
+        if getattr(repo, "provider", None) in {"local_archive", "local_directory"} and stored_path.is_dir():
             return stored_path
         if not _is_git_work_tree(stored_path):
             raise RuntimeError(f"已配置的本地仓库路径不是 git 工作树：{stored_path}")
@@ -385,7 +385,7 @@ async def sync_repository_code_analysis(db: Session, repo: Repository) -> int:
         commit_sha=commit_sha,
     )
     purge_legacy_code_documents(db, repo.id)
-    if repo.provider != "local_archive":
+    if repo.provider not in {"local_archive", "local_directory"}:
         repo.clone_url = repo.clone_url or _clone_url(repo)
     db.commit()
     return symbol_count

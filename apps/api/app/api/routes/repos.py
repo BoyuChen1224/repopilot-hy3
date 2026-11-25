@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import shutil
@@ -28,6 +29,30 @@ router = APIRouter()
 
 SUPPORTED_CONNECT_PROVIDERS = {"github", "github_compatible"}
 GITHUB_HOSTS = {"github.com", "www.github.com"}
+
+
+@router.post("/local", response_model=RepoResponse)
+async def register_local_project(payload: RepoConnectRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)) -> Repository:
+    if not payload.local_path:
+        raise HTTPException(status_code=400, detail="local_path is required")
+    path = _resolve_user_path(payload.local_path, "local_path")
+    if not path.is_dir():
+        raise HTTPException(status_code=400, detail="Local project directory does not exist")
+    name = path.name[:200] or "project"
+    suffix = hashlib.sha256(os.path.normcase(str(path)).encode("utf-8")).hexdigest()[:10]
+    full_name = f"local/{name}-{suffix}"
+    repo = db.query(Repository).filter(Repository.full_name == full_name).one_or_none()
+    if repo is None:
+        repo = Repository(owner="local", name=name, full_name=full_name)
+        db.add(repo)
+    repo.provider = "local_directory"
+    repo.local_path = str(path)
+    repo.checkout_mode = "local"
+    repo.description = "Local project directory"
+    db.commit()
+    db.refresh(repo)
+    background_tasks.add_task(sync_repository_code_analysis_by_id, repo.id)
+    return repo
 
 
 @router.post("/import-zip", response_model=RepoResponse)
@@ -354,6 +379,7 @@ async def delete_repo(repo_id: UUID, db: Session = Depends(get_db)) -> dict:
     repo = db.get(Repository, repo_id)
     if repo is None:
         raise HTTPException(status_code=404, detail="未找到仓库")
+    imported_archive = repo.provider == "local_archive"
 
     issue_ids = [item.id for item in db.query(Issue.id).filter(Issue.repo_id == repo.id).all()]
     pr_ids = [item.id for item in db.query(PullRequest.id).filter(PullRequest.repo_id == repo.id).all()]
@@ -488,12 +514,24 @@ async def delete_repo(repo_id: UUID, db: Session = Depends(get_db)) -> dict:
         except OSError as exc:
             file_cleanup_errors.append(f"{path}: {exc}")
 
+    removed_import = False
+    if imported_archive:
+        imports_root = (Path(settings.repo_checkout_dir).expanduser().resolve() / "imports").resolve()
+        project_dir = imports_root / str(repo_id)
+        try:
+            if project_dir.exists() and not project_dir.is_symlink() and project_dir.resolve().parent == imports_root:
+                shutil.rmtree(project_dir)
+                removed_import = True
+        except OSError as exc:
+            file_cleanup_errors.append(f"{project_dir}: {exc}")
+
     return {
         "repo_id": str(repo_id),
         "deleted": True,
         "cleanup": {
             "milvus_deleted": milvus_deleted,
             "removed_files": removed_files,
+            "removed_import": removed_import,
             "file_errors": file_cleanup_errors,
         },
     }

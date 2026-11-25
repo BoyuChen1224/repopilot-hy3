@@ -8,7 +8,7 @@ Show how RepoPilot Hy3 analyzes a frontend repository and returns a practical ru
 
 Upload `examples/demo-react-app.zip` or paste the files from `examples/demo-react-app`.
 
-## Expected Hy3 Output
+## Expected Model Output
 
 - Detects Vite + React from `package.json` and `vite.config.ts`.
 - Recommends Node.js and npm setup.

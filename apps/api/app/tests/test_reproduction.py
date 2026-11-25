@@ -8,11 +8,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app import reproduction
-from app.api.routes.repos import import_zip_project
+from app.api.routes.repos import delete_repo, import_zip_project, register_local_project
 from app.core.config import settings
 from app.db.models import Base
 from app.services.code_analysis import _sync_checkout
 from app.services.code_search import search_checkout_code
+from app.schemas.repos import RepoConnectRequest
 
 
 def test_analysis_reserves_space_for_error_log(monkeypatch):
@@ -57,6 +58,7 @@ def test_archive_skips_dependencies_and_secrets(tmp_path):
     with zipfile.ZipFile(buffer, "w") as archive:
         archive.writestr("project/README.md", "important")
         archive.writestr("project/.env", "SECRET=hidden")
+        archive.writestr("project/.env.staging.json", "SECRET=also-hidden")
         archive.writestr("project/node_modules/package/index.js", "dependency")
     buffer.seek(0)
     with zipfile.ZipFile(buffer) as archive:
@@ -64,6 +66,7 @@ def test_archive_skips_dependencies_and_secrets(tmp_path):
     summary = reproduction.summarize_directory(tmp_path / "project")
     assert "important" in summary
     assert "SECRET=hidden" not in summary
+    assert "SECRET=also-hidden" not in summary
     assert "node_modules" not in summary
 
 
@@ -92,3 +95,37 @@ async def test_imported_archive_is_available_to_workspace_search(tmp_path, monke
     assert _sync_checkout(repo, None).is_dir()
     matches = search_checkout_code(repo.local_path, "imported_handler")
     assert matches and matches[0]["source_id"] == "app.py"
+
+
+@pytest.mark.asyncio
+async def test_local_directory_does_not_require_git(tmp_path):
+    (tmp_path / "app.py").write_text("def local_handler():\n    return 42\n", encoding="utf-8")
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    db = sessionmaker(bind=engine)()
+    repo = await register_local_project(RepoConnectRequest(local_path=str(tmp_path)), BackgroundTasks(), db)
+    assert repo.provider == "local_directory"
+    assert _sync_checkout(repo, None) == tmp_path.resolve()
+    assert search_checkout_code(repo.local_path, "local_handler")
+
+
+@pytest.mark.asyncio
+async def test_delete_archive_removes_only_managed_copy(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "repo_checkout_dir", str(tmp_path / "managed"))
+    monkeypatch.setattr("app.api.routes.repos.delete_milvus_documents", lambda **_: False)
+    original = tmp_path / "original"
+    original.mkdir()
+    (original / "keep.txt").write_text("keep", encoding="utf-8")
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    db = sessionmaker(bind=engine)()
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("project/README.md", "imported")
+    buffer.seek(0)
+    repo = await import_zip_project(BackgroundTasks(), UploadFile(file=buffer, filename="project.zip"), db)
+    managed = tmp_path / "managed" / "imports" / str(repo.id)
+    result = await delete_repo(repo.id, db)
+    assert result["cleanup"]["removed_import"] is True
+    assert not managed.exists()
+    assert (original / "keep.txt").read_text(encoding="utf-8") == "keep"

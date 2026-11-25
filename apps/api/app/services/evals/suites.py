@@ -8,11 +8,12 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.config import PROJECT_ROOT
 from app.db.models import Document, Repository
 from app.services.evals.ragas_runner import RagEvalCase
 
 
-DEFAULT_SUITE_DIR = Path(__file__).resolve().parents[4] / "docs" / "datas" / "evals"
+DEFAULT_SUITE_DIR = PROJECT_ROOT / "docs" / "datas" / "evals"
 AUTO_SMOKE_SUITE_ID = "auto-document-smoke"
 
 

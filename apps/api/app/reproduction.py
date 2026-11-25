@@ -18,7 +18,7 @@ MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 MAX_EXTRACTED_BYTES = 200 * 1024 * 1024
 MAX_MEMBER_BYTES = 16 * 1024 * 1024
 MAX_ARCHIVE_MEMBERS = 10000
-SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".next", ".data", "dist", "build", "coverage"}
+SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".next", ".data", ".ssh", ".aws", ".gnupg", ".azure", ".kube", "dist", "build", "coverage"}
 SECRET_FILENAMES = {".env", ".env.local", ".env.production", ".npmrc", ".pypirc", "credentials.json"}
 IMPORTANT_NAMES = {
     "readme.md",
@@ -76,9 +76,14 @@ def call_hy3(messages: list[dict[str, str]], temperature: float = 0.25) -> str:
     return response.choices[0].message.content or ""
 
 
+def is_sensitive_name(name: str) -> bool:
+    name = name.lower()
+    return name in SECRET_FILENAMES or (name.startswith(".env") and name != ".env.example") or name.endswith((".pem", ".key", ".p12", ".pfx"))
+
+
 def should_include(path: Path) -> bool:
     name = path.name.lower()
-    if name in SECRET_FILENAMES or name.endswith((".pem", ".key", ".p12", ".pfx")):
+    if is_sensitive_name(name):
         return False
     if name in IMPORTANT_NAMES:
         return True
@@ -102,13 +107,14 @@ def safe_extract_zip(archive: zipfile.ZipFile, target: Path) -> None:
     if sum(member.file_size for member in members) > MAX_EXTRACTED_BYTES:
         raise HTTPException(status_code=413, detail="Archive is too large after extraction")
     for member in members:
-        destination = (target / member.filename).resolve()
+        normalized = PurePosixPath(member.filename.replace("\\", "/"))
+        parts = normalized.parts
+        if normalized.is_absolute() or ".." in parts or (parts and parts[0].endswith(":")):
+            raise HTTPException(status_code=400, detail=f"Unsafe zip path: {member.filename}")
+        destination = (target / Path(*parts)).resolve()
         if target_root != destination and target_root not in destination.parents:
             raise HTTPException(status_code=400, detail=f"Unsafe zip path: {member.filename}")
-        parts = PurePosixPath(member.filename.replace("\\", "/")).parts
-        if any(part.lower() in SKIP_DIRS for part in parts) or destination.name.lower() in SECRET_FILENAMES:
-            continue
-        if destination.name.lower().endswith((".pem", ".key", ".p12", ".pfx")):
+        if any(part.lower() in SKIP_DIRS for part in parts) or is_sensitive_name(destination.name):
             continue
         if member.file_size > MAX_MEMBER_BYTES:
             raise HTTPException(status_code=413, detail=f"Archive member is too large: {member.filename}")
@@ -126,7 +132,7 @@ def summarize_directory(root: Path) -> str:
         path for path in root.rglob("*")
         if path.is_file()
         and not any(part.lower() in SKIP_DIRS for part in path.relative_to(root).parts)
-        and path.name.lower() not in SECRET_FILENAMES
+        and not is_sensitive_name(path.name)
     ]
     files.sort(key=lambda path: (path.name.lower() not in IMPORTANT_NAMES, str(path.relative_to(root)).lower()))
     tree = "\n".join(str(p.relative_to(root)).replace("\\", "/") for p in files[:180])

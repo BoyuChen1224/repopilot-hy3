@@ -26,7 +26,7 @@ def as_uuid(value: str | uuid.UUID) -> uuid.UUID:
     return value if isinstance(value, uuid.UUID) else uuid.UUID(str(value))
 
 
-def get_or_create_config(db: Session, repo_id: str | uuid.UUID, *, commit: bool = True) -> KnowledgeBaseConfig:
+def get_or_create_config(db: Session, repo_id: str | uuid.UUID, *, commit: bool = True, enforce_contract: bool = True) -> KnowledgeBaseConfig:
     repo_uuid = as_uuid(repo_id)
     config = db.query(KnowledgeBaseConfig).filter(KnowledgeBaseConfig.repo_id == repo_uuid).one_or_none()
     if config is None:
@@ -45,11 +45,12 @@ def get_or_create_config(db: Session, repo_id: str | uuid.UUID, *, commit: bool 
         if commit:
             db.commit()
             db.refresh(config)
-    validate_embedding_contract(
-        config.embedding_provider,
-        config.embedding_model,
-        config.embedding_dimensions,
-    )
+    if enforce_contract:
+        validate_embedding_contract(
+            config.embedding_provider,
+            config.embedding_model,
+            config.embedding_dimensions,
+        )
     return config
 
 
@@ -80,7 +81,7 @@ def model_catalog() -> dict[str, Any]:
     elif provider == "dashscope":
         embedding_available = bool(settings.dashscope_api_key)
     elif provider == "openai_compatible":
-        embedding_available = bool(settings.embedding_api_key or settings.llm_api_key)
+        embedding_available = bool(settings.embedding_api_key and settings.embedding_base_url)
     else:
         embedding_available = provider == "deterministic"
     return {
@@ -98,8 +99,8 @@ def model_catalog() -> dict[str, Any]:
         "rerank_models": [
             {
                 "provider": "qwen_api",
-                "model": "qwen3-rerank",
-                "label": "Qwen3-Rerank（百炼 API）",
+                "model": settings.qwen_rerank_model,
+                "label": f"{settings.qwen_rerank_model}（远程重排服务）",
                 "available": qwen_api_ready,
                 "recommended": True,
                 "fallback": "heuristic",
@@ -113,16 +114,16 @@ def model_catalog() -> dict[str, Any]:
                 "fallback": None,
             },
         ],
-        "deepseek": {
-            "embedding_available": False,
-            "rerank_available": False,
-            "note": "DeepSeek 官方 API 当前未提供 Embedding 或 Rerank 接口。",
-        },
     }
 
 
 def runtime_status(config: KnowledgeBaseConfig) -> dict[str, Any]:
     catalog = model_catalog()
+    try:
+        validate_embedding_contract(config.embedding_provider, config.embedding_model, config.embedding_dimensions)
+        requires_reindex = False
+    except ValueError:
+        requires_reindex = True
     embedding = next(
         (
             item
@@ -145,6 +146,7 @@ def runtime_status(config: KnowledgeBaseConfig) -> dict[str, Any]:
             "model": config.embedding_model,
             "dimensions": config.embedding_dimensions,
             "available": bool(embedding and embedding["available"]),
+            "requires_reindex": requires_reindex,
             "fallback": (embedding or {}).get("fallback"),
         },
         "rerank": {
@@ -166,8 +168,8 @@ async def _qwen_rerank(
     api_key = settings.rerank_api_key or settings.dashscope_api_key
     base_url = (settings.rerank_base_url or "").rstrip("/")
     if not api_key or not base_url:
-        raise RuntimeError("Qwen rerank API is not configured")
-    endpoint = base_url if base_url.endswith("/reranks") else f"{base_url}/reranks"
+        raise RuntimeError("Remote rerank API is not configured")
+    endpoint = base_url if base_url.endswith(("/rerank", "/reranks")) else f"{base_url}/reranks"
     documents = [
         "\n".join(
             part
@@ -180,17 +182,19 @@ async def _qwen_rerank(
         )[:4000]
         for item in items
     ]
+    payload = {
+        "model": config.rerank_model,
+        "query": query,
+        "documents": documents,
+        "top_n": min(max(1, limit), len(documents)),
+    }
+    if settings.rerank_instruction:
+        payload["instruct"] = settings.rerank_instruction
     async with httpx.AsyncClient(timeout=60) as client:
         response = await client.post(
             endpoint,
             headers={"Authorization": f"Bearer {api_key}"},
-            json={
-                "model": config.rerank_model,
-                "query": query,
-                "documents": documents,
-                "top_n": min(max(1, limit), len(documents)),
-                "instruct": settings.qwen_retrieval_instruction,
-            },
+            json=payload,
         )
         response.raise_for_status()
         payload = response.json()
@@ -207,7 +211,7 @@ async def _qwen_rerank(
                 **item,
                 "score": round(score, 4),
                 "rerank_score": round(score, 4),
-                "rank_reason": "qwen3-rerank",
+                "rank_reason": config.rerank_model,
                 "retrieval": {
                     **(item.get("retrieval") or {}),
                     "rerank_mode": "qwen_api",
@@ -278,7 +282,7 @@ async def retrieve_knowledge(
             try:
                 items = await _qwen_rerank(query, items, config, resolved_top_k)
                 if not items:
-                    raise RuntimeError("Qwen rerank returned no valid results")
+                    raise RuntimeError("Remote rerank returned no valid results")
                 rerank_stage.update({"mode": "qwen_api", "fallback": False})
             except Exception as exc:
                 items = rerank_documents(query, items, resolved_top_k)

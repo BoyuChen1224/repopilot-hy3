@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, selectinload
 
-from app.core.config import settings
+from app.core.config import API_ROOT, PROJECT_ROOT, settings
 from app.db.models import ActionDraft, AgentRun, AgentTaskRun, AgentWorkflowRun, ChatMessage, Conversation, Issue, PullRequest, Repository, WorkflowRun
 from app.db.session import get_db
 from app.schemas.chat import ChatHistoryMessage, ChatPlanExecuteRequest, ChatRequest, ChatResponse, PromptRecommendationRequest, PromptRecommendationResponse
@@ -35,8 +35,7 @@ from app.services.permissions import ensure_demo_user, write_audit_log
 
 router = APIRouter()
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
-BACKEND_ROOT = Path(__file__).resolve().parents[3]
+BACKEND_ROOT = API_ROOT
 WORKSPACE_SKIP_DIRS = {
     ".git",
     ".hg",

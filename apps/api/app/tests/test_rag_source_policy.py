@@ -375,8 +375,7 @@ def test_reindex_uses_the_global_embedding_contract(monkeypatch) -> None:
 
 
 def test_reindex_rejects_partial_embedding_batches(monkeypatch) -> None:
-    monkeypatch.setattr(settings, "milvus_enabled", False)
-    reset_milvus_store_cache()
+    _install_fake_milvus(monkeypatch)
     db = _db_session()
     repo = _repo(db)
     db.add(
