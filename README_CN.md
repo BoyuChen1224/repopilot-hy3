@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-RepoPilot Hy3 是面向本机使用的项目复现与研发协作助手。它将项目文件、GitHub 数据和错误日志组织成可追溯的分析、诊断与报告。项目名称保留 Hy3；当前默认使用远程 `hy4-flash`，也可以通过配置选择兼容接口的其他模型。
+RepoPilot Hy3 是面向本机使用的项目复现与研发协作助手。它将项目文件、GitHub 数据和错误日志组织成可追溯的分析、诊断与报告。
 
 ## 功能
 
@@ -26,7 +26,7 @@ HY3_MODEL=hy4-flash
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-`HY3_` 是为兼容原项目保留的环境变量前缀；模型由 `HY3_MODEL` 决定。不要提交 `.env` 或真实密钥。
+`HY3_MODEL` 用于指定生成模型。不要提交 `.env` 或真实密钥。
 
 Windows PowerShell：
 
@@ -38,9 +38,9 @@ Windows 命令提示符使用 `start.bat`，macOS/Linux 使用 `./start.sh`。�
 
 已有示例：`examples/demo-react-app.zip` 可用于 ZIP 复现；`docs/demo-2-python-error.md` 提供 Python 错误诊断输入。
 
-## 项目来源
+## 添加项目
 
-首页保留原有复现流程。要在 AI 工作台检索项目文件，可在“仓库”页导入 ZIP 或添加本地目录；本地目录不要求 Git，也不会被复制。ZIP 会在 `.data/repos/imports/` 中创建受大小限制的本地副本。GitHub 数据同步、Issue、PR 和 CI 功能需要连接相应仓库；本地项目不会自动产生远程仓库数据。
+首页提供项目复现流程。要在 AI 工作台检索项目文件，可在“仓库”页导入 ZIP 或添加本地目录；本地目录不要求 Git，也不会被复制。ZIP 会在 `.data/repos/imports/` 中创建受大小限制的本地副本。GitHub 数据同步、Issue、PR 和 CI 功能需要连接相应仓库；本地项目不会自动产生远程仓库数据。
 
 ## 知识检索与远程服务
 
@@ -75,7 +75,7 @@ RERANK_MODEL=your_rerank_model
 
 ## 评测与数据
 
-“评测”页面保留 RAGAS 任务、结果和回归对比功能。可使用自动文档冒烟测试，也可在 `docs/datas/evals/` 放置自行维护的 JSON 评测集。评测需要可用的 Judge 模型；结果会区分质量失败和评分执行异常。
+“评测”页面支持 RAGAS 任务、结果和回归对比。可使用自动文档冒烟测试，也可在 `docs/datas/evals/` 放置自行维护的 JSON 评测集。评测需要可用的 Judge 模型；结果会区分质量失败和评分执行异常。
 
 本机数据库、上传文件、项目副本和自动生成的 Token 加密密钥位于 `.data/`，默认不提交到 Git；也可在 `.env` 中自行设置 `TOKEN_ENCRYPTION_KEY`。备份数据库时需妥善保管对应密钥。本机 API 不提供多人登录，应只绑定本机地址；远程或多人部署需要另行增加认证与权限控制。
 

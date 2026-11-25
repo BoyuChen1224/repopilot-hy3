@@ -7,7 +7,7 @@ RepoPilot Hy3 includes one-click startup scripts, but a fresh computer still nee
 - Operating system:
   - Windows 10/11 with PowerShell 5+ or Command Prompt
   - macOS or Linux with a POSIX-compatible `sh`
-- Python 3.10+ with `venv` and `pip`
+- Python 3.11+ with `venv` and `pip`
 - Node.js 18+ with `npm`
 - Network access to:
   - PyPI, for backend Python packages
@@ -48,7 +48,7 @@ The startup scripts install these project dependencies automatically:
 - Windows Command Prompt: `start.bat`
 - macOS / Linux: `start.sh`
 
-## Hy3 Configuration
+## Model Configuration
 
 Create `.env` in the repository root or `apps/api/.env`:
 
@@ -103,20 +103,8 @@ If WSL prints an error like this when running `./start.sh`:
 : not found 5: /path/to/repopilot-hy3/.env:
 ```
 
-Update to the latest repository version. The fixed `start.sh` parses `.env` line by line and tolerates Windows CRLF line endings.
-
-If you cannot update immediately, convert `.env` to Linux line endings as a temporary workaround:
+Check the `.env` syntax and convert it to Linux line endings if needed:
 
 ```bash
 sed -i 's/\r$//' .env
 ```
-
-## Windows batch stops after npm install
-
-If `start.bat` stops immediately after this line:
-
-```text
-found 0 vulnerabilities
-```
-
-Update to the latest repository version. The fixed `start.bat` uses `call npm ...` so control returns to the startup script after `npm install`.

@@ -2,7 +2,7 @@
 
 English | [中文](README_CN.md)
 
-RepoPilot Hy3 is a local repository reproduction and development collaboration assistant. It analyzes project files, GitHub data, and error logs, then produces evidence-backed guidance and reports. The product retains its original name; the default remote model is now `hy4-flash`.
+RepoPilot Hy3 is a local repository reproduction and development collaboration assistant. It analyzes project files, GitHub data, and error logs, then produces evidence-backed guidance and reports.
 
 ## Features
 
@@ -26,11 +26,11 @@ HY3_MODEL=hy4-flash
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-The `HY3_` names remain for compatibility; `HY3_MODEL` selects the model. Never commit `.env` or real credentials.
+`HY3_MODEL` selects the generation model. Never commit `.env` or real credentials.
 
 Run `./start.ps1` on Windows PowerShell, `start.bat` in Command Prompt, or `./start.sh` on macOS/Linux. The web app defaults to `http://127.0.0.1:5173`, API docs to `http://127.0.0.1:8000/docs`, and health to `http://127.0.0.1:8000/health`.
 
-The original reproduction flow remains the home page. Import a ZIP or add a local directory from the Repositories page to make files available to workspace search; local directories do not require Git and are not copied. Issue, PR, and CI synchronization require a connected remote repository.
+The home page provides a project reproduction workflow. Import a ZIP or add a local directory from the Repositories page to make files available to workspace search; local directories do not require Git and are not copied. Issue, PR, and CI synchronization require a connected remote repository.
 
 ## Retrieval services
 
