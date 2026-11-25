@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
-const main = readFileSync(join(root, "src", "main.tsx"), "utf8");
+const main = readFileSync(join(root, "src", "reproduction.tsx"), "utf8");
 const styles = readFileSync(join(root, "src", "styles.css"), "utf8");
 const readme = readFileSync(join(root, "..", "..", "README.md"), "utf8");
 const readmeCn = readFileSync(join(root, "..", "..", "README_CN.md"), "utf8");

@@ -1,0 +1,51 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  background: #f5f7fb;
+  color: #172033;
+}
+
+.shellHeader {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 62px;
+  padding: 10px 24px;
+  background: #fff;
+  border-bottom: 1px solid #dce3ef;
+}
+
+.shellBrand { display: flex; align-items: center; gap: 9px; color: #172033; text-decoration: none; white-space: nowrap; }
+.shellMark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; color: #fff; background: #155eef; }
+.shellNav { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.shellLink { display: block; padding: 8px 10px; border-radius: 8px; color: #64748b; font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.shellLink:hover, .shellLink.active { color: #155eef; background: #edf4ff; }
+.shellMenu { position: relative; }
+.shellMenu summary { cursor: pointer; list-style: none; }
+.shellMenu summary::-webkit-details-marker { display: none; }
+.shellMenuList { position: absolute; top: 100%; left: 0; min-width: 150px; padding: 6px; border: 1px solid #dce3ef; border-radius: 8px; background: #fff; box-shadow: 0 10px 25px #1720331a; }
+.shellMenuLink { display: block; padding: 8px 10px; border-radius: 6px; color: #334155; font-size: 13px; text-decoration: none; white-space: nowrap; }
+.shellMenuLink:hover, .shellMenuLink.active { color: #155eef; background: #edf4ff; }
+.shellContent { flex: 1; min-height: 0; overflow: auto; padding: 16px 24px; }
+.shellContent > .app { height: 100%; padding: 0; }
+.shellLoading { padding: 16px; color: #64748b; font-size: 14px; }
+.agent-workspace-root { height: calc(100vh - 94px); }
+
+@media (max-width: 720px) {
+  .shellHeader { align-items: flex-start; flex-direction: column; gap: 8px; padding: 10px 14px; }
+  .shellNav { max-width: 100%; }
+  .shellContent { padding: 12px; }
+}
+
+@media (max-width: 1150px) {
+  .agent-workspace-root { height: auto !important; min-height: calc(100vh - 100px); grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) !important; }
+  .agent-workspace-root.sidebarCollapsed { grid-template-columns: 56px minmax(0, 1fr) !important; }
+  .agent-workspace-main { display: flex !important; flex-direction: column; overflow: visible; }
+  .agent-workspace-resizer { display: none; }
+  .agent-workspace-right { order: 3; min-height: 380px; max-height: 650px; }
+  .agent-workspace-chat { order: 2; min-height: 380px; }
+}
