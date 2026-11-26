@@ -170,6 +170,8 @@ async def confirm_action_draft(
         raise HTTPException(status_code=404, detail="未找到仓库")
     try:
         result = await _execute_github_draft(db, draft, repo)
+        if not isinstance(result, dict):
+            result = {"result": result}
         draft.status = "executed"
         draft.confirmed_by = user.id
         draft.executed_at = datetime.now(timezone.utc)

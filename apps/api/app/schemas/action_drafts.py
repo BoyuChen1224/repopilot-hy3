@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ActionDraftCreateRequest(BaseModel):
@@ -30,6 +30,13 @@ class ActionDraftResponse(BaseModel):
     metadata: dict = Field(default_factory=dict, alias="meta")
     created_at: datetime
     updated_at: datetime | None = None
+
+    @field_validator("execution_result", mode="before")
+    @classmethod
+    def normalize_legacy_list_result(cls, value):
+        if isinstance(value, list):
+            return {"result": value}
+        return value
 
     model_config = {"from_attributes": True, "populate_by_name": True}
 

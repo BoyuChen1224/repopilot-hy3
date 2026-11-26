@@ -39,8 +39,10 @@ class CIDebugAgent(BaseAgent):
             for step in job.get("steps", [])
             if isinstance(step, dict) and step.get("conclusion") == "failure" and step.get("name")
         ]
-        failure_type = self._classify_failure(logs)
         first_error = self._extract_first_error(raw_logs)
+        failure_type = self._classify_failure((first_error or "").lower())
+        if failure_type == "unknown":
+            failure_type = self._classify_failure(logs)
         related_files = self._extract_related_files(raw_logs, context)
         failed_job_names = [str(job.get("name")) for job in failed_jobs if job.get("name")]
         job_hint = f"失败 job：{', '.join(failed_job_names[:3])}。" if failed_job_names else ""
@@ -101,8 +103,8 @@ class CIDebugAgent(BaseAgent):
 
     def _classify_failure(self, logs: str) -> str:
         ordered_rules = [
-            ("permission", ["permission", "denied", "forbidden", "eacces", "权限"]),
-            ("environment", ["missing env", "environment variable", "secret", "not set", "环境变量"]),
+            ("permission", ["permission denied", "permissionerror", "access denied", "forbidden", "eacces", "权限不足", "权限被拒绝"]),
+            ("environment", ["missing env", "missing secret", "secret not found", "not set", "环境变量未设置", "缺少环境变量"]),
             ("dependency", ["npm err", "pip install", "dependency", "module not found", "no matching distribution", "cannot find module", "依赖"]),
             ("lint", ["eslint", "lint", "ruff", "flake8", "biome"]),
             ("build", ["build failed", "compilation", "webpack", "vite", "next build", "tsc", "type error", "构建"]),
